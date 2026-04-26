@@ -1,0 +1,142 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  border-bottom: 1px solid rgba(255,255,255,0.4);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+
+  transition: all 0.35s ease;
+}
+
+/* barra mínima siempre visible */
+
+.header-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 0.55rem 1rem;
+}
+
+.header-mini-info {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.toggle-header-btn {
+  border: none;
+  background: rgba(255,255,255,0.65);
+  backdrop-filter: blur(12px);
+  border-radius: 999px;
+  width: 38px;
+  height: 38px;
+  cursor: pointer;
+  font-size: 1rem;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+}
+
+/* contenido expandible */
+
+.header-content {
+  overflow: hidden;
+  transition: all 0.35s ease;
+}
+
+.header-content.show {
+  max-height: 220px;
+  opacity: 1;
+  padding: 0 1rem 1rem;
+}
+
+.header-content.hide {
+  max-height: 0;
+  opacity: 0;
+  padding: 0 1rem;
+}
+
+/* layout interno */
+
+.header-info {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #333;
+  margin-bottom: 0.8rem;
+}
+
+.header-info p {
+  margin: 0;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+}
+
+.quote-btn,
+.emergency-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 0.85rem 1.3rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: white;
+  transition: all 0.28s ease;
+}
+
+.quote-btn {
+  background: linear-gradient(135deg,#0a84ff,#0066ff);
+}
+
+.emergency-btn {
+  background: linear-gradient(135deg,#ff5f57,#ff3b30);
+}
+
+.quote-btn:hover,
+.emergency-btn:hover,
+.toggle-header-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* desktop */
+
+@media (min-width: 769px) {
+  .header-topbar {
+    padding: 0.65rem 2rem;
+  }
+
+  .header-content.show {
+    padding: 0 2rem 1rem;
+  }
+
+  .header-content.hide {
+    padding: 0 2rem;
+  }
+
+  .header-buttons {
+    justify-content: flex-end;
+  }
+
+  .header-info {
+    text-align: left;
+  }
+}
+
+/* mobile */
+
+@media (max-width: 768px) {
+  .header-buttons {
+    flex-direction: column;
+  }
+
+  .quote-btn,
+  .emergency-btn {
+    width: 100%;
+  }
+}
