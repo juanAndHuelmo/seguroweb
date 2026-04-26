@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import '../../styles/Pages.css';
 
@@ -82,16 +82,17 @@ const ProductImage = styled.img`
 /* ===== COMPONENTE ===== */
 
 function Brokers() {
+  const base = process.env.PUBLIC_URL;
+
   const brokers = [
-    { name: 'SURA Seguros', image: 'Images/Logos/Brokers/sura.svg' },
-    { name: 'Berkley Seguros', image: 'Images/Logos/Brokers/berkley.jpeg' },
-    { name: 'PORTO Seguros', image: 'Images/Logos/Brokers/porto.webp' },
-    { name: 'Surco Seguros', image: 'Images/Logos/Brokers/surco.png' },
-    { name: 'Barbuss Seguros', image: 'Images/Logos/Brokers/barbuss.jpeg' },
-    { name: 'BSE Seguros', image: 'Images/Logos/Brokers/bse.png' },
+    { name: 'SURA Seguros', image: `${base}/Images/Logos/brokers/sura.svg` },
+    { name: 'Berkley Seguros', image: `${base}/Images/Logos/brokers/berkley.jpeg` },
+    { name: 'PORTO Seguros', image: `${base}/Images/Logos/brokers/porto.webp` },
+    { name: 'Surco Seguros', image: `${base}/Images/Logos/brokers/surco.png` },
+    { name: 'Barbuss Seguros', image: `${base}/Images/Logos/brokers/barbuss.jpeg` },
+    { name: 'BSE Seguros', image: `${base}/Images/Logos/brokers/bse.png` },
   ];
 
-  /* duplicamos array para loop infinito */
   const sliderItems = [...brokers, ...brokers];
 
   return (
