@@ -12,7 +12,7 @@ function NavBar({ currentPage, setCurrentPage }) {
     <nav className="navbar">
       <div className="navbar-container">
         <div className="navbar-brand">
-          <img src="/Images/logo.png" alt="Huelmo Seguros Logo" className="navbar-logo" /> 
+          <img src="Images/logo.png" alt="Huelmo Seguros Logo" className="navbar-logo" /> 
         </div>
         
         <ul className="navbar-menu">

@@ -3,32 +3,32 @@ import '../../styles/Pages.css';
 
 const services = [
   {
-    image: '/Images/Logos/vehiculo.jpg',
-    imageback: '/Images/Logos/vehiculo.jpg', // Agregué fondos para el efecto visual
+    image: 'Images/Logos/vehiculo.jpg',
+    imageback: 'Images/Logos/vehiculo.jpg',
     title: 'Vehículos',
     description: 'Solicite cotización para la cobertura de su vehículo. Protéjase por reclamos de terceros, incendio, robo y daños propios.',
   },
   {
-    image: '/Images/Logos/hogar.jpg',
-    imageback: '/Images/Logos/hogar.jpg',
+    image: 'Images/Logos/hogar.jpg',
+    imageback: 'Images/Logos/hogar.jpg',
     title: 'Hogar',
     description: 'Cotice las coberturas más completas y flexibles para proteger su hogar contra incendio, robos y otros daños.',
   },
   {
-    image: '/Images/Logos/Empresa.jpg',
-    imageback: '/Images/Logos/Empresa.jpg',
+    image: 'Images/Logos/Empresa.jpg',
+    imageback: 'Images/Logos/Empresa.jpg',
     title: 'Comercio',
     description: 'Acceda a un combinado de coberturas. Mantenga su negocio protegido ante incendio, robo, reclamo de terceros y otros riesgos.',
   },
   {
-    image: '/Images/Logos/vida.jpg',
-    imageback: '/Images/fondovida.jpg',
+    image: 'Images/Logos/vida.jpg',
+    imageback: 'Images/fondovida.jpg',
     title: 'Vida',
     description: 'Protéjase y proteja a los suyos contratando: Accidente personal, vida y/o ahorro.',
   },
   {
-    image: '/Images/Logos/viaje.jpg',
-    imageback: '/Images/Logos/viaje.jpg',
+    image: 'Images/Logos/viaje.jpg',
+    imageback: 'Images/Logos/viaje.jpg',
     title: 'Viaje',
     description: 'Disfruta de tu viaje al exterior con la mayor tranquilidad.',
   },

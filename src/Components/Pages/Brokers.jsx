@@ -83,12 +83,12 @@ const ProductImage = styled.img`
 
 function Brokers() {
   const brokers = [
-    { name: 'SURA Seguros', image: '../Images/Logos/Brokers/sura.svg' },
-    { name: 'Berkley Seguros', image: '../Images/Logos/Brokers/berkley.jpeg' },
-    { name: 'PORTO Seguros', image: '../Images/Logos/Brokers/porto.webp' },
-    { name: 'Surco Seguros', image: '../Images/Logos/Brokers/surco.png' },
-    { name: 'Barbuss Seguros', image: '../Images/Logos/Brokers/barbuss.jpeg' },
-    { name: 'BSE Seguros', image: '../Images/Logos/Brokers/bse.png' },
+    { name: 'SURA Seguros', image: 'Images/Logos/Brokers/sura.svg' },
+    { name: 'Berkley Seguros', image: 'Images/Logos/Brokers/berkley.jpeg' },
+    { name: 'PORTO Seguros', image: 'Images/Logos/Brokers/porto.webp' },
+    { name: 'Surco Seguros', image: 'Images/Logos/Brokers/surco.png' },
+    { name: 'Barbuss Seguros', image: 'Images/Logos/Brokers/barbuss.jpeg' },
+    { name: 'BSE Seguros', image: 'Images/Logos/Brokers/bse.png' },
   ];
 
   /* duplicamos array para loop infinito */

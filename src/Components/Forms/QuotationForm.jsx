@@ -22,11 +22,11 @@ function QuotationForm({ onClose }) {
   const [error, setError] = useState(null);
 
   const insuranceTypes = [
-    { value: 'vehicles', label: 'Vehículos', img: '/Images/Logos/vehiculo.jpg' },
-    { value: 'home', label: 'Hogar', img: '/Images/Logos/hogar.jpg' },
-    { value: 'commerce', label: 'Comercio', img: '/Images/Logos/Empresa.jpg' },
-    { value: 'life', label: 'Vida', img: '/Images/Logos/vida.jpg' },
-    { value: 'travel', label: 'Viaje', img: '/Images/Logos/viaje.jpg' },
+    { value: 'vehicles', label: 'Vehículos', img: 'Images/Logos/vehiculo.jpg' },
+    { value: 'home', label: 'Hogar', img: 'Images/Logos/hogar.jpg' },
+    { value: 'commerce', label: 'Comercio', img: 'Images/Logos/Empresa.jpg' },
+    { value: 'life', label: 'Vida', img: 'Images/Logos/vida.jpg' },
+    { value: 'travel', label: 'Viaje', img: 'Images/Logos/viaje.jpg' },
   ];
 
   const handleChange = (e) => {

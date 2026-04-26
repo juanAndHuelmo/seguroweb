@@ -1,233 +1,225 @@
-import React, { useState } from 'react';
-import ReCAPTCHA from 'react-google-recaptcha';
-import emailjs from '@emailjs/browser';
+import { useState } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
+import emailjs from "@emailjs/browser";
+import "../../styles/QuotationForm.css";
 
-const Contact = () => {
-    const [formData, setFormData] = useState({
-        name: '',
-        lastName: '',
-        phone: '',
-        email: '',
-        queryType: '',
-        message: ''
-    });
-    const [captchaValue, setCaptchaValue] = useState(null);
-    const [errors, setErrors] = useState({});
+emailjs.init("FWhla7meyPyV00HZZ");
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-        // Clear error when user starts typing
-        if (errors[e.target.name]) {
-            setErrors({ ...errors, [e.target.name]: '' });
+function Contact({ onClose }) {
+  const [formData, setFormData] = useState({
+    name: "",
+    lastName: "",
+    phone: "",
+    email: "",
+    queryType: "",
+    message: "",
+  });
+
+  const [captchaValue, setCaptchaValue] = useState(null);
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
+    }
+  };
+
+  const handleCaptchaChange = (value) => {
+    setCaptchaValue(value);
+    setErrors((prev) => ({
+      ...prev,
+      captcha: "",
+    }));
+  };
+
+  const validateEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validateForm = () => {
+    let newErrors = {};
+
+    if (!formData.name.trim()) newErrors.name = "Nombre requerido";
+    if (!formData.lastName.trim()) newErrors.lastName = "Apellido requerido";
+    if (!formData.phone.trim()) newErrors.phone = "Teléfono requerido";
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email requerido";
+    } else if (!validateEmail(formData.email)) {
+      newErrors.email = "Email inválido";
+    }
+
+    if (!formData.queryType) newErrors.queryType = "Selecciona una opción";
+    if (!formData.message.trim()) newErrors.message = "Escribe tu consulta";
+    if (!captchaValue) newErrors.captcha = "Completa el CAPTCHA";
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    setLoading(true);
+    setErrorMsg("");
+
+    try {
+      await emailjs.send(
+        "service_qsf0m5b",
+        "template_qjor7vt",
+        {
+          from_name: `${formData.name} ${formData.lastName}`,
+          from_email: formData.email,
+          phone: formData.phone,
+          query_type: formData.queryType,
+          message: formData.message,
         }
-    };
+      );
 
-    const validateEmail = (email) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    };
+      setSubmitted(true);
 
-    const handleCaptchaChange = (value) => {
-        setCaptchaValue(value);
-    };
+      setTimeout(() => {
+        setSubmitted(false);
+        if (onClose) onClose();
+      }, 2500);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        
-        let newErrors = {};
-        
-        if (!formData.name.trim()) newErrors.name = 'El nombre es requerido';
-        if (!formData.lastName.trim()) newErrors.lastName = 'El apellido es requerido';
-        if (!formData.phone.trim()) newErrors.phone = 'El teléfono es requerido';
-        if (!formData.email.trim()) {
-            newErrors.email = 'El email es requerido';
-        } else if (!validateEmail(formData.email)) {
-            newErrors.email = 'Formato de email inválido';
-        }
-        if (!formData.queryType) newErrors.queryType = 'Selecciona un tipo de consulta';
-        if (!formData.message.trim()) newErrors.message = 'La consulta es requerida';
-        if (!captchaValue) newErrors.captcha = 'Completa el CAPTCHA';
+      setFormData({
+        name: "",
+        lastName: "",
+        phone: "",
+        email: "",
+        queryType: "",
+        message: "",
+      });
 
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-            return;
-        }
+      setCaptchaValue(null);
+    } catch (error) {
+      setErrorMsg("Error al enviar el mensaje.");
+    }
 
-        // Replace with your EmailJS service ID, template ID, and public key
-        emailjs.send(
-            'YOUR_SERVICE_ID',
-            'YOUR_TEMPLATE_ID',
-            {
-                from_name: `${formData.name} ${formData.lastName}`,
-                from_email: formData.email,
-                phone: formData.phone,
-                query_type: formData.queryType,
-                message: formData.message
-            },
-            'YOUR_PUBLIC_KEY'
-        ).then((result) => {
-            alert('Mensaje enviado exitosamente!');
-            setFormData({ name: '', lastName: '', phone: '', email: '', queryType: '', message: '' });
-            setCaptchaValue(null);
-            setErrors({});
-        }, (error) => {
-            alert('Error al enviar el mensaje. Inténtalo de nuevo.');
-        });
-    };
+    setLoading(false);
+  };
 
-    const formStyle = {
-        maxWidth: '600px',
-        margin: '0 auto',
-        padding: '20px',
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        backgroundColor: '#f9f9f9'
-    };
+  return (
+    <div className="quotation-form-container">
+      <div className="form-wrapper">
+        <header className="form-header">
+          <h2>Contacto</h2>
+          <p>Envíanos tu consulta</p>
+        </header>
 
-    const fieldStyle = {
-        marginBottom: '15px'
-    };
+        {submitted && (
+          <div className="success-message fade-in">
+            ✅ Mensaje enviado correctamente.
+          </div>
+        )}
 
-    const labelStyle = {
-        display: 'block',
-        marginBottom: '5px',
-        fontWeight: 'bold'
-    };
+        {errorMsg && (
+          <div className="error-message fade-in">
+            ❌ {errorMsg}
+          </div>
+        )}
 
-    const inputStyle = {
-        width: '100%',
-        padding: '8px',
-        border: '1px solid #ccc',
-        borderRadius: '4px',
-        fontSize: '14px'
-    };
+        <form onSubmit={handleSubmit} className="quotation-form">
+          <fieldset className="form-section">
+            <legend>Datos Personales</legend>
 
-    const selectStyle = {
-        ...inputStyle,
-        height: '36px'
-    };
+            <div className="form-row">
+              <input
+                type="text"
+                name="name"
+                placeholder="Nombre"
+                value={formData.name}
+                onChange={handleChange}
+              />
 
-    const textareaStyle = {
-        ...inputStyle,
-        minHeight: '100px',
-        resize: 'vertical'
-    };
+              <input
+                type="text"
+                name="lastName"
+                placeholder="Apellido"
+                value={formData.lastName}
+                onChange={handleChange}
+              />
+            </div>
 
-    const buttonStyle = {
-        backgroundColor: '#007bff',
-        color: 'white',
-        padding: '10px 20px',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: 'pointer',
-        fontSize: '16px'
-    };
+            <div className="form-row">
+              <input
+                type="tel"
+                name="phone"
+                placeholder="Celular"
+                value={formData.phone}
+                onChange={handleChange}
+              />
 
-    const errorStyle = {
-        color: 'red',
-        fontSize: '12px',
-        marginTop: '5px'
-    };
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
+          </fieldset>
 
-    return (
-        <div style={{ padding: '20px' }}>
-            <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Formulario de Contacto</h2>
-            <form onSubmit={handleSubmit} style={formStyle}>
-                <div style={fieldStyle}>
-                    <label style={labelStyle}>Nombre:</label>
-                    <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        style={inputStyle}
-                        required
-                    />
-                    {errors.name && <div style={errorStyle}>{errors.name}</div>}
-                </div>
-                
-                <div style={fieldStyle}>
-                    <label style={labelStyle}>Apellido:</label>
-                    <input
-                        type="text"
-                        name="lastName"
-                        value={formData.lastName}
-                        onChange={handleChange}
-                        style={inputStyle}
-                        required
-                    />
-                    {errors.lastName && <div style={errorStyle}>{errors.lastName}</div>}
-                </div>
-                
-                <div style={fieldStyle}>
-                    <label style={labelStyle}>Teléfono:</label>
-                    <input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        style={inputStyle}
-                        required
-                    />
-                    {errors.phone && <div style={errorStyle}>{errors.phone}</div>}
-                </div>
-                
-                <div style={fieldStyle}>
-                    <label style={labelStyle}>Email:</label>
-                    <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        style={inputStyle}
-                        required
-                    />
-                    {errors.email && <div style={errorStyle}>{errors.email}</div>}
-                </div>
-                
-                <div style={fieldStyle}>
-                    <label style={labelStyle}>Tipo de Consulta:</label>
-                    <select
-                        name="queryType"
-                        value={formData.queryType}
-                        onChange={handleChange}
-                        style={selectStyle}
-                        required
-                    >
-                        <option value="">Selecciona una opción</option>
-                        <option value="cotizar">Cotizar</option>
-                        <option value="reclamo">Reclamo</option>
-                        <option value="sugerencia">Sugerencia</option>
-                        <option value="otro">Otro</option>
-                    </select>
-                    {errors.queryType && <div style={errorStyle}>{errors.queryType}</div>}
-                </div>
-                
-                <div style={fieldStyle}>
-                    <label style={labelStyle}>Consulta:</label>
-                    <textarea
-                        name="message"
-                        value={formData.message}
-                        onChange={handleChange}
-                        style={textareaStyle}
-                        placeholder="Describe tu consulta aquí..."
-                        required
-                    />
-                    {errors.message && <div style={errorStyle}>{errors.message}</div>}
-                </div>
-                
-                <div style={fieldStyle}>
-                    <ReCAPTCHA
-                        sitekey="YOUR_RECAPTCHA_SITE_KEY"
-                        onChange={handleCaptchaChange}
-                    />
-                    {errors.captcha && <div style={errorStyle}>{errors.captcha}</div>}
-                </div>
-                
-                <button type="submit" style={buttonStyle}>Enviar</button>
-            </form>
-        </div>
-    );
-};
+          <fieldset className="form-section">
+            <legend>Consulta</legend>
+
+            <div className="form-group">
+              <select
+                name="queryType"
+                value={formData.queryType}
+                onChange={handleChange}
+              >
+                <option value="">Tipo de consulta</option>
+                <option value="cotizacion">Cotización</option>
+                <option value="reclamo">Reclamo</option>
+                <option value="sugerencia">Sugerencia</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+
+            <textarea
+              name="message"
+              rows="4"
+              placeholder="Escribe tu mensaje..."
+              value={formData.message}
+              onChange={handleChange}
+            />
+          </fieldset>
+
+          <div style={{ marginBottom: "1rem" }}>
+            <ReCAPTCHA
+              sitekey="6LcYososAAAAANiGCDq90Exc3GTVzzoDgF2CnBSE"
+              onChange={handleCaptchaChange}
+            />
+            {errors.captcha && (
+              <small style={{ color: "red" }}>{errors.captcha}</small>
+            )}
+          </div>
+
+          <button type="submit" className="submit-btn" disabled={loading}>
+            {loading ? "⏳ Enviando..." : "Enviar Consulta"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
 
 export default Contact;
