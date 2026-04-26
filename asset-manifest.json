@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/seguroweb/static/css/main.fa2eff4f.css",
-    "main.js": "/seguroweb/static/js/main.2eecf36c.js",
+    "main.js": "/seguroweb/static/js/main.ef2cb9a0.js",
     "static/js/453.e9e7ec89.chunk.js": "/seguroweb/static/js/453.e9e7ec89.chunk.js",
     "index.html": "/seguroweb/index.html",
     "main.fa2eff4f.css.map": "/seguroweb/static/css/main.fa2eff4f.css.map",
-    "main.2eecf36c.js.map": "/seguroweb/static/js/main.2eecf36c.js.map",
+    "main.ef2cb9a0.js.map": "/seguroweb/static/js/main.ef2cb9a0.js.map",
     "453.e9e7ec89.chunk.js.map": "/seguroweb/static/js/453.e9e7ec89.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.fa2eff4f.css",
-    "static/js/main.2eecf36c.js"
+    "static/js/main.ef2cb9a0.js"
   ]
 }
