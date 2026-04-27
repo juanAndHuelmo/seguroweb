@@ -84,15 +84,14 @@ const ProductImage = styled.img`
 function Brokers() {
   const base = process.env.PUBLIC_URL;
 
-  const brokers = [
-    { name: 'SURA Seguros', image: `${base}/Images/Logos/brokers/sura.svg` },
-    { name: 'Berkley Seguros', image: `${base}/Images/Logos/brokers/berkley.jpeg` },
-    { name: 'PORTO Seguros', image: `${base}/Images/Logos/brokers/porto.webp` },
-    { name: 'Surco Seguros', image: `${base}/Images/Logos/brokers/surco.png` },
-    { name: 'Barbuss Seguros', image: `${base}/Images/Logos/brokers/barbuss.jpeg` },
-    { name: 'BSE Seguros', image: `${base}/Images/Logos/brokers/bse.png` },
+const brokers = [
+    { name: 'SURA', image: process.env.PUBLIC_URL + '/Images/Logos/brokers/sura.svg' },
+    { name: 'Berkley', image: process.env.PUBLIC_URL + '/Images/Logos/brokers/berkley.jpeg' },
+    { name: 'PORTO', image: process.env.PUBLIC_URL + '/Images/Logos/brokers/porto.webp' },
+    { name: 'Surco', image: process.env.PUBLIC_URL + '/Images/Logos/brokers/surco.png' },
+    { name: 'Barbuss', image: process.env.PUBLIC_URL + '/Images/Logos/brokers/barbuss.jpeg' },
+    { name: 'BSE', image: process.env.PUBLIC_URL + '/Images/Logos/brokers/bse.png' },
   ];
-
   const sliderItems = [...brokers, ...brokers];
 
   return (
