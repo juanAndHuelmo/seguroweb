@@ -85,12 +85,12 @@ function Brokers() {
   const base = process.env.PUBLIC_URL;
 
 const brokers = [
-    { name: 'SURA', image: process.env.PUBLIC_URL + 'Images/Logos/Brokers/sura.svg' },
-    { name: 'Berkley', image: process.env.PUBLIC_URL + 'Images/Logos/Brokers/berkley.jpeg' },
-    { name: 'PORTO', image: process.env.PUBLIC_URL + 'Images/Logos/Brokers/porto.webp' },
-    { name: 'Surco', image: process.env.PUBLIC_URL + 'Images/Logos/Brokers/surco.png' },
-    { name: 'Barbuss', image: process.env.PUBLIC_URL + 'Images/Logos/Brokers/barbuss.jpeg' },
-    { name: 'BSE', image: process.env.PUBLIC_URL + 'Images/Logos/Brokers/bse.png' },
+    { name: 'SURA', image: process.env.PUBLIC_URL + '/Images/Logos/Brokers/sura.svg' },
+    { name: 'Berkley', image: process.env.PUBLIC_URL + '/Images/Logos/Brokers/berkley.jpeg' },
+    { name: 'PORTO', image: process.env.PUBLIC_URL + '/Images/Logos/Brokers/porto.webp' },
+    { name: 'Surco', image: process.env.PUBLIC_URL + '/Images/Logos/Brokers/surco.png' },
+    { name: 'Barbuss', image: process.env.PUBLIC_URL + '/Images/Logos/Brokers/barbuss.jpeg' },
+    { name: 'BSE', image: process.env.PUBLIC_URL + '/Images/Logos/Brokers/bse.png' },
   ];
   const sliderItems = [...brokers, ...brokers];
 
