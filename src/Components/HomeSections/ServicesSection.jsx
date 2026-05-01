@@ -1,106 +1,255 @@
-import { useEffect, useState } from 'react';
-import '../../styles/Pages.css';
+import React, { useState, useEffect, useRef } from 'react';
+import styled from 'styled-components';
+
+/* ===== CONFIG ===== */
+const AUTO_PLAY_INTERVAL = 4000;
+
+/* ===== ESTILOS ===== */
+
+const SectionWrapper = styled.section`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80px 20px;
+  gap: 40px;
+  background-color: #f5f5f7;
+`;
+
+const MainCard = styled.div`
+  position: relative;
+  width: 100%;
+  max-width: 1050px;
+  height: 520px;
+  border-radius: 40px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const BackgroundLayer = styled.div`
+  position: absolute;
+  inset: 0;
+  background-image: url(${props => props.bg});
+  background-size: cover;
+  background-position: center;
+
+  opacity: ${props => (props.active ? 1 : 0)};
+  transform: ${props => (props.active ? 'scale(1)' : 'scale(1.05)')};
+
+  transition: opacity 0.8s ease, transform 1.2s ease;
+`;
+
+const BackgroundOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.25);
+  backdrop-filter: blur(6px);
+  z-index: 1;
+`;
+
+const GlassContent = styled.div`
+  position: relative;
+  z-index: 2;
+
+  background: rgba(255,255,255,0.4);
+  backdrop-filter: blur(20px);
+
+  width: 90%;
+  max-width: 450px;
+  padding: 40px;
+  border-radius: 40px;
+  text-align: center;
+
+  border: 1px solid rgba(255,255,255,0.8);
+
+  transition: all 0.4s ease;
+
+  .icon-container {
+    width: 110px;
+    height: 110px;
+    margin: 0 auto 25px;
+    border-radius: 25px;
+    overflow: hidden;
+    background: white;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  h2 {
+    font-size: 2.4rem;
+    margin-bottom: 12px;
+  }
+
+  p {
+    margin-bottom: 30px;
+  }
+`;
+
+const GreenButton = styled.button`
+  background: #2d5a41;
+  color: white;
+  border: none;
+  padding: 16px 40px;
+  border-radius: 20px;
+  cursor: pointer;
+
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+`;
+
+const DarkDock = styled.div`
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  background: #1d3d2c;
+  border-radius: 28px;
+`;
+
+const DockItem = styled.button`
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  padding: 0;
+  background: #fff;
+
+  opacity: ${props => (props.active ? 1 : 0.5)};
+  transform: ${props => (props.active ? 'scale(1.2) translateY(-8px)' : 'scale(1)')};
+
+  box-shadow: ${props =>
+    props.active
+      ? '0 10px 20px rgba(0,0,0,0.3)'
+      : '0 4px 10px rgba(0,0,0,0.1)'};
+
+  transition: all 0.3s ease;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+/* ===== DATA ===== */
 
 const services = [
   {
-    image: 'Images/Logos/vehiculo.jpg',
-    imageback: 'Images/Logos/vehiculo.jpg',
     title: 'Vehículos',
-    description: 'Solicite cotización para la cobertura de su vehículo. Protéjase por reclamos de terceros, incendio, robo y daños propios.',
+    icon: process.env.PUBLIC_URL + '/Images/Logos/vehiculo.jpg',
+    imagen: process.env.PUBLIC_URL + '/Images/fondovehiculo.jpg',
+    description: 'Cotice la cobertura para su vehículo con los mejores beneficios y respaldo.'
   },
   {
-    image: 'Images/Logos/hogar.jpg',
-    imageback: 'Images/Logos/hogar.jpg',
     title: 'Hogar',
-    description: 'Cotice las coberturas más completas y flexibles para proteger su hogar contra incendio, robos y otros daños.',
+    icon: process.env.PUBLIC_URL + '/Images/Logos/hogar.jpg',
+    imagen: process.env.PUBLIC_URL + '/Images/fondohogar.jpg',
+    description: 'Proteja su casa y sus bienes contra todo riesgo con planes a medida.'
   },
   {
-    image: 'Images/Logos/Empresa.jpg',
-    imageback: 'Images/Logos/Empresa.jpg',
     title: 'Comercio',
-    description: 'Acceda a un combinado de coberturas. Mantenga su negocio protegido ante incendio, robo, reclamo de terceros y otros riesgos.',
+    icon: process.env.PUBLIC_URL + '/Images/Logos/Empresa.jpg',
+    imagen: process.env.PUBLIC_URL + '/Images/fondocomercio.jpg',
+    description: 'Acceda a un combinado de coberturas para proteger su negocio e inversión.'
   },
   {
-    image: 'Images/Logos/vida.jpg',
-    imageback: 'Images/fondovida.jpg',
     title: 'Vida',
-    description: 'Protéjase y proteja a los suyos contratando: Accidente personal, vida y/o ahorro.',
+    icon: process.env.PUBLIC_URL + '/Images/Logos/vida.jpg',
+    imagen: process.env.PUBLIC_URL + '/Images/fondovida.jpg',
+    description: 'La tranquilidad de saber que el futuro de los suyos está siempre protegido.'
   },
   {
-    image: 'Images/Logos/viaje.jpg',
-    imageback: 'Images/Logos/viaje.jpg',
     title: 'Viaje',
-    description: 'Disfruta de tu viaje al exterior con la mayor tranquilidad.',
-  },
+    icon: process.env.PUBLIC_URL + '/Images/Logos/viaje.jpg',
+    imagen: process.env.PUBLIC_URL + '/Images/fondoviaje.jpg',
+    description: 'Viaje seguro al exterior con la asistencia médica y respaldo internacional.'
+  }
 ];
+
+/* ===== COMPONENT ===== */
 
 function ServicesSection({ openQuote }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [touchStart, setTouchStart] = useState(0);
+  const [hoverIndex, setHoverIndex] = useState(null);
 
-  // Auto-reproducción del carrusel
+  const intervalRef = useRef(null);
+
+  const activeIndex = hoverIndex !== null ? hoverIndex : currentIndex;
+
+  const nextService = () => {
+    setCurrentIndex(prev => (prev + 1) % services.length);
+  };
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % services.length);
-    }, 3000); // 3 segundos para que el usuario pueda leer mejor
-
-    return () => clearInterval(interval);
+    startAutoPlay();
+    return stopAutoPlay;
   }, []);
 
-  // Lógica de Swipe (Gestos táctiles)
-  const handleTouchStart = (e) => setTouchStart(e.targetTouches[0].clientX);
-  
-  const handleTouchEnd = (e) => {
-    const touchEnd = e.changedTouches[0].clientX;
-    const distance = touchStart - touchEnd;
+  const startAutoPlay = () => {
+    stopAutoPlay();
+    intervalRef.current = setInterval(nextService, AUTO_PLAY_INTERVAL);
+  };
 
-    if (distance > 50) { // Swipe Izquierda (Siguiente)
-      setCurrentIndex((prev) => (prev + 1) % services.length);
-    } else if (distance < -50) { // Swipe Derecha (Anterior)
-      setCurrentIndex((prev) => (prev === 0 ? services.length - 1 : prev - 1));
-    }
+  const stopAutoPlay = () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
   };
 
   return (
-    <section className="services-section">
-      <div className="carousel-container">
-        <div 
-          className="carousel-slide"
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-        >
-          {/* Fondo con desenfoque opcional */}
-          <div className="carousel-background">
-            <img src={services[currentIndex].imageback} alt="" />
-          </div>
+    <SectionWrapper>
+      <MainCard
+        onMouseEnter={stopAutoPlay}
+        onMouseLeave={startAutoPlay}
+      >
 
-          <div className="carousel-content">
-            <div className="carousel-image">
-              <img src={services[currentIndex].image} alt={services[currentIndex].title} />
-            </div>
-            <h2>{services[currentIndex].title}</h2>
-            <p>{services[currentIndex].description}</p>
-            <button className="request-quote" onClick={openQuote}>
-              Solicitar Cotización
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Dock de Thumbnails estilo macOS */}
-      <div className="carousel-thumbnails">
-        {services.map((service, index) => (
-          <button
-            key={index}
-            className={`thumbnail ${index === currentIndex ? 'active' : ''}`}
-            onClick={() => setCurrentIndex(index)}
-          >
-            <span className="thumbnail-title">{service.title}</span>
-            <img src={service.image} alt={service.title} />
-          </button>
+        {services.map((s, i) => (
+          <BackgroundLayer
+            key={i}
+            bg={s.imagen}
+            active={i === activeIndex}
+          />
         ))}
-      </div>
-    </section>
+
+        <BackgroundOverlay />
+
+        <GlassContent>
+          <div className="icon-container">
+            <img src={services[activeIndex].icon} alt="" />
+          </div>
+          <h2>{services[activeIndex].title}</h2>
+          <p>{services[activeIndex].description}</p>
+          <GreenButton onClick={openQuote}>
+            Solicitar Cotización
+          </GreenButton>
+        </GlassContent>
+
+      </MainCard>
+
+      <DarkDock>
+        {services.map((s, i) => (
+          <DockItem
+            key={i}
+            active={i === activeIndex}
+            onClick={() => {
+              setCurrentIndex(i);
+              setHoverIndex(null);
+            }}
+            onMouseEnter={() => setHoverIndex(i)}
+            onMouseLeave={() => setHoverIndex(null)}
+          >
+            <img src={s.icon} alt={s.title} />
+          </DockItem>
+        ))}
+      </DarkDock>
+    </SectionWrapper>
   );
 }
 

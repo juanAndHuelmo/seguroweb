@@ -1,90 +1,124 @@
 import React from 'react';
-import styled from 'styled-components';
-import '../../styles/Pages.css';
+import styled, { keyframes } from 'styled-components';
+
+/* ===== ANIMACIONES ===== */
+const scroll = keyframes`
+  0% { transform: translateX(0); }
+  100% { transform: translateX(calc(-250px * 6)); } 
+`;
 
 /* ===== ESTILOS ===== */
 
-const Container = styled.div`
-  padding: 20px;
-`;
-
-const BrokersSection = styled.section`
-  background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(16px);
-  border-radius: 28px;
-  padding: 2rem;
-  box-shadow: 0 12px 35px rgba(0,0,0,0.08);
-  overflow: hidden;
-`;
-
-const Title = styled.h1`
+const SectionWrapper = styled.section`
+  padding: 100px 0;
   text-align: center;
-  color: #0f5132;
-  margin-bottom: 0.7rem;
+  background-color: #064e3b; // Verde esmeralda profundo idéntico al About
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
 `;
 
-const IntroParagraph = styled.p`
-  text-align: center;
-  color: #5a6b61;
-  max-width: 700px;
-  margin: 0 auto 2rem;
+const Header = styled.div`
+  margin-bottom: 60px;
+  padding: 0 20px;
+
+  h2 {
+    font-size: clamp(2.2rem, 5vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+    /* Gradiente de texto igual al About */
+    background: linear-gradient(180deg, #fff 0%, #a7f3d0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  p {
+    color: #a7f3d0;
+    font-size: 1.2rem;
+    font-weight: 300;
+    max-width: 700px;
+    margin: 0 auto;
+    opacity: 0.9;
+  }
 `;
 
-const SliderWrapper = styled.div`
+const MarqueeContainer = styled.div`
+  position: relative;
   width: 100%;
   overflow: hidden;
-  position: relative;
+  padding: 40px 0;
+
+  /* Degradados laterales para desvanecimiento suave */
+  &::before,
+  &::after {
+    content: "";
+    height: 100%;
+    position: absolute;
+    width: 200px;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  &::before {
+    left: 0;
+    top: 0;
+    background: linear-gradient(to right, #064e3b 10%, rgba(6, 78, 59, 0) 100%);
+  }
+
+  &::after {
+    right: 0;
+    top: 0;
+    background: linear-gradient(to left, #064e3b 10%, rgba(6, 78, 59, 0) 100%);
+  }
 `;
 
-const SliderTrack = styled.div`
+const MarqueeTrack = styled.div`
   display: flex;
-  gap: 18px;
-  width: max-content;
-  animation: scroll 24s linear infinite;
+  width: calc(250px * 12); 
+  animation: ${scroll} 35s linear infinite;
 
   &:hover {
     animation-play-state: paused;
   }
-
-  @keyframes scroll {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      transform: translateX(-50%);
-    }
-  }
 `;
 
-const BrokerCard = styled.div`
-  min-width: 220px;
-  height: 120px;
+const LogoCard = styled.div`
+  width: 230px;
+  height: 110px;
+  margin: 0 15px;
+  /* Glassmorphism: Fondo semitransparente con desenfoque */
+  backdrop-filter: blur(12px);
   background: white;
-  border-radius: 22px;
-  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.07);
-  transition: 0.25s ease;
+  transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  padding: 25px;
 
   &:hover {
-    transform: translateY(-6px) scale(1.03);
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-8px) scale(1.02);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
   }
 `;
 
-const ProductImage = styled.img`
-  max-width: 160px;
-  max-height: 70px;
+const Image = styled.img`
+  max-width: 85%;
+  max-height: 65%;
   object-fit: contain;
+
+  ${LogoCard}:hover & {
+    /* Al pasar el mouse, recuperan color original para destacar */
+    filter: brightness(1) invert(0) opacity(1);
+  }
 `;
 
 /* ===== COMPONENTE ===== */
 
 function Brokers() {
-  const base = process.env.PUBLIC_URL;
-
-const brokers = [
+  const brokers = [
     { name: 'SURA', image: process.env.PUBLIC_URL + '/Images/Logos/Brokers/sura.svg' },
     { name: 'Berkley', image: process.env.PUBLIC_URL + '/Images/Logos/Brokers/berkley.jpeg' },
     { name: 'PORTO', image: process.env.PUBLIC_URL + '/Images/Logos/Brokers/porto.webp' },
@@ -92,32 +126,26 @@ const brokers = [
     { name: 'Barbuss', image: process.env.PUBLIC_URL + '/Images/Logos/Brokers/barbuss.jpeg' },
     { name: 'BSE', image: process.env.PUBLIC_URL + '/Images/Logos/Brokers/bse.png' },
   ];
-  const sliderItems = [...brokers, ...brokers];
+
+  const fullList = [...brokers, ...brokers];
 
   return (
-    <Container>
-      <BrokersSection>
-        <Title>Aseguradoras</Title>
+    <SectionWrapper>
+      <Header>
+        <h2>Nuestras Aseguradoras</h2>
+        <p>Trabajamos con compañías líderes para ofrecerte la mejor cobertura, precio y respaldo.</p>
+      </Header>
 
-        <IntroParagraph>
-          Trabajamos con compañías líderes para ofrecerte la mejor cobertura,
-          precio y respaldo.
-        </IntroParagraph>
-
-        <SliderWrapper>
-          <SliderTrack>
-            {sliderItems.map((broker, index) => (
-              <BrokerCard key={index}>
-                <ProductImage
-                  src={broker.image}
-                  alt={broker.name}
-                />
-              </BrokerCard>
-            ))}
-          </SliderTrack>
-        </SliderWrapper>
-      </BrokersSection>
-    </Container>
+      <MarqueeContainer>
+        <MarqueeTrack>
+          {fullList.map((broker, index) => (
+            <LogoCard key={index}>
+              <Image src={broker.image} alt={broker.name} />
+            </LogoCard>
+          ))}
+        </MarqueeTrack>
+      </MarqueeContainer>
+    </SectionWrapper>
   );
 }
 

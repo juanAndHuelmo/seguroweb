@@ -12,14 +12,20 @@ function NavBar({ currentPage, setCurrentPage }) {
     <nav className="navbar">
       <div className="navbar-container">
         <div className="navbar-brand">
-          <img src="Images/logo.png" alt="Huelmo Seguros Logo" className="navbar-logo" /> 
+          <img
+            src={process.env.PUBLIC_URL + '/Images/logo.png'}
+            alt="Huelmo Seguros Logo"
+            className="navbar-logo"
+          />
         </div>
-        
+
         <ul className="navbar-menu">
           {menuItems.map((item) => (
             <li key={item.id}>
               <button
-                className={`nav-link ${currentPage === item.id ? 'active' : ''}`}
+                className={`nav-link ${
+                  currentPage === item.id ? 'active' : ''
+                }`}
                 onClick={() => setCurrentPage(item.id)}
               >
                 {item.label}

@@ -1,57 +1,145 @@
-import { useState, useEffect } from 'react';
-import '../../styles/Pages.css';
+import React, { useState, useEffect } from 'react';
+import styled, { keyframes } from 'styled-components';
 
-// Importaciones corregidas: Salimos de Pages (..), entramos en HomeSections
+// Secciones
 import ServicesSection from '../HomeSections/ServicesSection';
 import WhyUsSection from '../HomeSections/WhyUsSection';
-import HeroSection from '../HomeSections/HeroSection';
-
-// El formulario está en Components/Forms
-import QuotationForm from '../Forms/QuotationForm';
 import Brokers from './Brokers';
+import QuotationForm from '../Forms/QuotationForm';
+
+// --- Animaciones ---
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
+// --- Temas macOS Light ---
+const theme = {
+  bg: '#F5F5F7', // Gris muy claro típico de Apple
+  white: '#FFFFFF',
+  primaryGreen: '#064e3b', // Verde esmeralda para las cajas
+  accentGreen: '#10b981',
+  textMain: '#1D1D1F',
+  textSecondary: '#86868B',
+};
+
+const HomePageWrapper = styled.div`
+  min-height: 100vh;
+  background-color: ${theme.bg};
+  color: ${theme.textMain};
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  animation: ${fadeIn} 0.8s ease-in-out;
+
+  /* Estilo unificado para las secciones dentro del Home */
+  section {
+    padding: 80px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    
+    /* Forzamos que las cabeceras de las secciones se vean bien en fondo claro */
+    h2 {
+      color: ${theme.textMain};
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+  }
+`;
+
+// Contenedor especial para resaltar secciones con el verde que te gusta
+const HighlightedSection = styled.div`
+  background-color: ${theme.primaryGreen};
+  color: white;
+  border-radius: 40px; // Bordes muy redondeados tipo iPhone
+  margin: 20px;
+  padding: 40px 0;
+  box-shadow: 0 20px 40px rgba(6, 78, 59, 0.15);
+
+  /* Ajuste para que las secciones internas se vean blancas sobre el verde */
+  h2, p, h3 {
+    color: white !important;
+  }
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 90%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  padding: 20px;
+`;
+
+const ModalContainer = styled.div`
+  width: 100%;
+  max-width: 700px;
+  position: relative;
+  background: ${theme.white};
+  border-radius: 30px;
+  overflow: hidden;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(0,0,0,0.05);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+
+  &:hover {
+    background: rgba(0,0,0,0.1);
+  }
+`;
 
 function Home() {
   const [showQuotationForm, setShowQuotationForm] = useState(false);
 
   const toggleModal = () => setShowQuotationForm(!showQuotationForm);
 
-  // Controlar scroll del body cuando el modal está abierto
   useEffect(() => {
-    if (showQuotationForm) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-    }
-    return () => {
-      document.body.style.overflow = 'auto';
-    };
+    document.body.style.overflow = showQuotationForm ? 'hidden' : 'auto';
+    return () => { document.body.style.overflow = 'auto'; };
   }, [showQuotationForm]);
 
   return (
-    <div className="page-container">
-      {/* MODAL DE COTIZACIÓN - FUERA DEL HOME PARA NO OSCURECERSE */}
-      {showQuotationForm && (
-        <div className="modal-overlay" onClick={toggleModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="close-modal" onClick={toggleModal}>&times;</button>
-            <QuotationForm onClose={toggleModal} />
-          </div>
-        </div>
-      )}
-
-      <div className={`home-page ${showQuotationForm ? 'modal-open' : ''}`}>
-      {/* SECCIONES DEL HOME */}
+    <HomePageWrapper>
+      {/* 1. Sección de Servicios en blanco (Limpio) */}
       <ServicesSection openQuote={toggleModal} />
-      <Brokers />
-       <WhyUsSection /> 
-      {/* <HeroSection openQuote={toggleModal} /> */}
- 
- {/*     <EmergencySection />
-      <FAQSection />
-      <CTASection openQuote={toggleModal} />
-      */}
-      </div>
-    </div>
+      
+      {/* 2. Sección de Brokers o Beneficios en VERDE (Resalte) */}
+      <HighlightedSection>
+        <Brokers />
+      </HighlightedSection>
+
+      {/* 3. Por qué nosotros en blanco */}
+      <WhyUsSection /> 
+
+      {/* MODAL */}
+      {showQuotationForm && (
+        <ModalOverlay onClick={toggleModal}>
+          <ModalContainer onClick={(e) => e.stopPropagation()}>
+            <CloseButton onClick={toggleModal}>&times;</CloseButton>
+            <QuotationForm onClose={toggleModal} />
+          </ModalContainer>
+        </ModalOverlay>
+      )}
+    </HomePageWrapper>
   );
 }
 
