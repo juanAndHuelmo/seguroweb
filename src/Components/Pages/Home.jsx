@@ -64,7 +64,7 @@ const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  width: 90%;
+  width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(15px);
@@ -73,12 +73,10 @@ const ModalOverlay = styled.div`
   justify-content: center;
   align-items: center;
   z-index: 10000;
-  padding: 20px;
 `;
 
 const ModalContainer = styled.div`
   width: 100%;
-  max-width: 700px;
   position: relative;
   background: ${theme.white};
   border-radius: 30px;

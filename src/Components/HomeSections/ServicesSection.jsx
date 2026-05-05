@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { useAppConfig } from '../../Context/AppConfigContext';
+import { getAssetUrl } from '../../Config/api';
 
 /* ===== CONFIG ===== */
 const AUTO_PLAY_INTERVAL = 4000;
@@ -140,44 +142,11 @@ const DockItem = styled.button`
   }
 `;
 
-/* ===== DATA ===== */
-
-const services = [
-  {
-    title: 'Vehículos',
-    icon: process.env.PUBLIC_URL + '/Images/Logos/vehiculo.jpg',
-    imagen: process.env.PUBLIC_URL + '/Images/fondovehiculo.jpg',
-    description: 'Cotice la cobertura para su vehículo con los mejores beneficios y respaldo.'
-  },
-  {
-    title: 'Hogar',
-    icon: process.env.PUBLIC_URL + '/Images/Logos/hogar.jpg',
-    imagen: process.env.PUBLIC_URL + '/Images/fondohogar.jpg',
-    description: 'Proteja su casa y sus bienes contra todo riesgo con planes a medida.'
-  },
-  {
-    title: 'Comercio',
-    icon: process.env.PUBLIC_URL + '/Images/Logos/Empresa.jpg',
-    imagen: process.env.PUBLIC_URL + '/Images/fondocomercio.jpg',
-    description: 'Acceda a un combinado de coberturas para proteger su negocio e inversión.'
-  },
-  {
-    title: 'Vida',
-    icon: process.env.PUBLIC_URL + '/Images/Logos/vida.jpg',
-    imagen: process.env.PUBLIC_URL + '/Images/fondovida.jpg',
-    description: 'La tranquilidad de saber que el futuro de los suyos está siempre protegido.'
-  },
-  {
-    title: 'Viaje',
-    icon: process.env.PUBLIC_URL + '/Images/Logos/viaje.jpg',
-    imagen: process.env.PUBLIC_URL + '/Images/fondoviaje.jpg',
-    description: 'Viaje seguro al exterior con la asistencia médica y respaldo internacional.'
-  }
-];
-
 /* ===== COMPONENT ===== */
 
 function ServicesSection({ openQuote }) {
+  const { config } = useAppConfig();
+  const services = config.services.items;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hoverIndex, setHoverIndex] = useState(null);
 
@@ -185,23 +154,23 @@ function ServicesSection({ openQuote }) {
 
   const activeIndex = hoverIndex !== null ? hoverIndex : currentIndex;
 
-  const nextService = () => {
+  const nextService = useCallback(() => {
     setCurrentIndex(prev => (prev + 1) % services.length);
-  };
+  }, [services.length]);
+
+  const stopAutoPlay = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+  }, []);
+
+  const startAutoPlay = useCallback(() => {
+    stopAutoPlay();
+    intervalRef.current = setInterval(nextService, AUTO_PLAY_INTERVAL);
+  }, [nextService, stopAutoPlay]);
 
   useEffect(() => {
     startAutoPlay();
     return stopAutoPlay;
-  }, []);
-
-  const startAutoPlay = () => {
-    stopAutoPlay();
-    intervalRef.current = setInterval(nextService, AUTO_PLAY_INTERVAL);
-  };
-
-  const stopAutoPlay = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-  };
+  }, [startAutoPlay, stopAutoPlay]);
 
   return (
     <SectionWrapper>
@@ -213,7 +182,7 @@ function ServicesSection({ openQuote }) {
         {services.map((s, i) => (
           <BackgroundLayer
             key={i}
-            bg={s.imagen}
+            bg={getAssetUrl(s.image)}
             active={i === activeIndex}
           />
         ))}
@@ -222,12 +191,12 @@ function ServicesSection({ openQuote }) {
 
         <GlassContent>
           <div className="icon-container">
-            <img src={services[activeIndex].icon} alt="" />
+            <img src={getAssetUrl(services[activeIndex].icon)} alt="" />
           </div>
           <h2>{services[activeIndex].title}</h2>
           <p>{services[activeIndex].description}</p>
           <GreenButton onClick={openQuote}>
-            Solicitar Cotización
+            {config.services.ctaLabel}
           </GreenButton>
         </GlassContent>
 
@@ -245,7 +214,7 @@ function ServicesSection({ openQuote }) {
             onMouseEnter={() => setHoverIndex(i)}
             onMouseLeave={() => setHoverIndex(null)}
           >
-            <img src={s.icon} alt={s.title} />
+            <img src={getAssetUrl(s.icon)} alt={s.title} />
           </DockItem>
         ))}
       </DarkDock>

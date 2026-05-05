@@ -4,12 +4,15 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ThemeProvider } from './Context/ThemeContext';
+import { AppConfigProvider } from './Context/AppConfigContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <ThemeProvider>
-      <App title ="Welcome Martha"/>
+      <AppConfigProvider>
+        <App title ="Welcome Martha"/>
+      </AppConfigProvider>
     </ThemeProvider>
   </React.StrictMode>
 );

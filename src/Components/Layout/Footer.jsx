@@ -1,34 +1,33 @@
 import React from "react";
 import { FaInstagram, FaFacebookF, FaLinkedinIn } from "react-icons/fa";
 import "../styles/Footer.css";
+import { useAppConfig } from "../../Context/AppConfigContext";
 
 export default function Footer() {
+    const { config } = useAppConfig();
+    const footer = config.footer;
+
     return (
         <footer className="footer">
             <div className="footer-container">
                 <div className="footer-section">
-                    <h3>Contacto</h3>
-                    <p><strong>Email:</strong> phuelmoseguros@gmail.com</p>
-                    <p><strong>Teléfono:</strong> +598 92 290 092</p>
-                    <p><strong>Horario:</strong> Lunes a viernes 9:00 - 17:00</p>
+                    <h3>{footer.contactTitle}</h3>
+                    <p><strong>Email:</strong> {footer.email}</p>
+                    <p><strong>Teléfono:</strong> {footer.phone}</p>
+                    <p><strong>Horario:</strong> {footer.hours}</p>
                 </div>
 
                 <div className="footer-section">
-                    <h3>Sobre Nosotros</h3>
-                    <p>
-                        Huelmo Seguros se dedica a proteger a las personas,
-                        familias y empresas ante riesgos imprevistos que puedan
-                        afectar su bienestar financiero y calidad de vida.
-                    </p>
+                    <h3>{footer.aboutTitle}</h3>
+                    <p>{footer.aboutText}</p>
                 </div>
 
                 <div className="footer-section">
-                    <h3>Enlaces Rápidos</h3>
+                    <h3>{footer.linksTitle}</h3>
                     <ul>
-                        <li><a href="#home">Inicio</a></li>
-                        <li><a href="#about">Nosotros</a></li>
-                        <li><a href="#services">Servicios</a></li>
-                        <li><a href="#brokers">Corredores</a></li>
+                        {footer.links.map(link => (
+                            <li key={link.href}><a href={link.href}>{link.label}</a></li>
+                        ))}
                     </ul>
                 </div>
 
@@ -36,7 +35,7 @@ export default function Footer() {
                 
                     <div className="social-links">
                         <a
-                            href="https://www.instagram.com/huelmoseguros"
+                            href={footer.socials.instagram}
                             target="_blank"
                             rel="noopener noreferrer"
                             title="Instagram"
@@ -45,7 +44,7 @@ export default function Footer() {
                         </a>
 
                         <a
-                            href="https://www.facebook.com/huelmoseguros"
+                            href={footer.socials.facebook}
                             target="_blank"
                             rel="noopener noreferrer"
                             title="Facebook"
@@ -54,7 +53,7 @@ export default function Footer() {
                         </a>
 
                         <a
-                            href="https://linkedin.com"
+                            href={footer.socials.linkedin}
                             target="_blank"
                             rel="noopener noreferrer"
                             title="LinkedIn"
@@ -67,8 +66,7 @@ export default function Footer() {
 
             <div className="footer-bottom">
                 <p>
-                    © {new Date().getFullYear()} Huelmo Seguros - Todos los
-                    derechos reservados.
+                    © {new Date().getFullYear()} {config.brand.name} - {footer.copyright}
                 </p>
             </div>
         </footer>

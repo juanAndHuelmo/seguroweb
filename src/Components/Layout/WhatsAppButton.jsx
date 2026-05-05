@@ -1,8 +1,10 @@
 import '../../styles/WhatsAppButton.css';
+import { useAppConfig } from '../../Context/AppConfigContext';
 
 function WhatsAppButton() {
-  const phoneNumber = '+598922290092';
-  const message = 'Hola, quiero más información sobre cotizar un seguro.';
+  const { config } = useAppConfig();
+  const phoneNumber = config.whatsapp.phone;
+  const message = config.whatsapp.message;
   const whatsappUrl = `https://wa.me/${phoneNumber.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
 
   return (
@@ -11,8 +13,8 @@ function WhatsAppButton() {
       target="_blank"
       rel="noopener noreferrer"
       className="whatsapp-button"
-      aria-label="Chat por WhatsApp"
-      title="¡Contáctanos por WhatsApp!"
+      aria-label={config.whatsapp.ariaLabel}
+      title={config.whatsapp.title}
     >
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>

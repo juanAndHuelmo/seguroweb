@@ -1,20 +1,18 @@
 import '../../styles/NavBar.css';
+import { useAppConfig } from '../../Context/AppConfigContext';
+import { getAssetUrl } from '../../Config/api';
 
 function NavBar({ currentPage, setCurrentPage }) {
-  const menuItems = [
-    { id: 'home', label: 'Inicio' },
-    { id: 'about', label: 'Nosotros' },
-    { id: 'brokers', label: 'Aseguradoras' },
-    { id: 'contact', label: 'Contacto' },
-  ];
+  const { config } = useAppConfig();
+  const menuItems = config.nav || [];
 
   return (
     <nav className="navbar">
       <div className="navbar-container">
         <div className="navbar-brand">
           <img
-            src={process.env.PUBLIC_URL + '/Images/logo.png'}
-            alt="Huelmo Seguros Logo"
+            src={getAssetUrl(config.brand.logo)}
+            alt={`${config.brand.name} Logo`}
             className="navbar-logo"
           />
         </div>

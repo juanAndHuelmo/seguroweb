@@ -1,16 +1,12 @@
+import { useAppConfig } from '../../Context/AppConfigContext';
+
 function WhyUsSection() {
-  const items = [
-    'Cotización rápida',
-    'Asesores especializados',
-    'Amplia variedad',
-    'Acompañamiento en siniestros',
-    'Trato humano'
-  ];
+  const { config } = useAppConfig();
 
   return (
     <section className="why-us-section">
-      <h2>¿Por qué elegirnos?</h2>
-      {items.map((item, i) => (
+      <h2>{config.whyUs.title}</h2>
+      {config.whyUs.items.map((item, i) => (
         <div key={i}>{item}</div>
       ))}
     </section>

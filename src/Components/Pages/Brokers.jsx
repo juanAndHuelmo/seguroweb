@@ -1,5 +1,7 @@
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
+import { useAppConfig } from '../../Context/AppConfigContext';
+import { getAssetUrl } from '../../Config/api';
 
 /* ===== ANIMACIONES ===== */
 const scroll = keyframes`
@@ -118,29 +120,23 @@ const Image = styled.img`
 /* ===== COMPONENTE ===== */
 
 function Brokers() {
-  const brokers = [
-    { name: 'SURA', image: process.env.PUBLIC_URL + '/Images/Logos/Brokers/sura.svg' },
-    { name: 'Berkley', image: process.env.PUBLIC_URL + '/Images/Logos/Brokers/berkley.jpeg' },
-    { name: 'PORTO', image: process.env.PUBLIC_URL + '/Images/Logos/Brokers/porto.webp' },
-    { name: 'Surco', image: process.env.PUBLIC_URL + '/Images/Logos/Brokers/surco.png' },
-    { name: 'Barbuss', image: process.env.PUBLIC_URL + '/Images/Logos/Brokers/barbuss.jpeg' },
-    { name: 'BSE', image: process.env.PUBLIC_URL + '/Images/Logos/Brokers/bse.png' },
-  ];
+  const { config } = useAppConfig();
+  const brokers = config.brokers.items;
 
   const fullList = [...brokers, ...brokers];
 
   return (
     <SectionWrapper>
       <Header>
-        <h2>Nuestras Aseguradoras</h2>
-        <p>Trabajamos con compañías líderes para ofrecerte la mejor cobertura, precio y respaldo.</p>
+        <h2>{config.brokers.title}</h2>
+        <p>{config.brokers.subtitle}</p>
       </Header>
 
       <MarqueeContainer>
         <MarqueeTrack>
           {fullList.map((broker, index) => (
             <LogoCard key={index}>
-              <Image src={broker.image} alt={broker.name} />
+              <Image src={getAssetUrl(broker.image)} alt={broker.name} />
             </LogoCard>
           ))}
         </MarqueeTrack>

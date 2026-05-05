@@ -4,6 +4,7 @@ import QuotationForm from '../Forms/QuotationForm';
 import { FiUser, FiShield } from 'react-icons/fi';
 import { LuBriefcase } from 'react-icons/lu';
 import { MdSafetyCheck } from 'react-icons/md';
+import { useAppConfig } from '../../Context/AppConfigContext';
 
 // --- Animaciones ---
 const fadeIn = keyframes`
@@ -206,6 +207,7 @@ const ModalContent = styled.div`
 /* ===== COMPONENTE PRINCIPAL ===== */
 
 function About() {
+  const { config } = useAppConfig();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Función para cerrar el modal
@@ -213,35 +215,32 @@ function About() {
   // Función para abrir el modal
   const openModal = () => setIsModalOpen(true);
 
-  const features = [
-    { icon: <FiUser />, title: 'Atención Personalizada', description: 'Asesoramiento uno a uno adaptado a tu realidad específica.' },
-    { icon: <LuBriefcase />, title: 'Personal Profesional', description: 'Expertos certificados con trayectoria sólida en el mercado.' },
-    { icon: <FiShield />, title: 'Mayor Seguridad', description: 'Respaldo total de las compañías líderes a nivel mundial.' },
-    { icon: <MdSafetyCheck />, title: 'Planes Accesibles', description: 'Optimizamos tus costos sin sacrificar ni un ápice de cobertura.' },
-  ];
+  const iconMap = {
+    user: <FiUser />,
+    briefcase: <LuBriefcase />,
+    shield: <FiShield />,
+    safety: <MdSafetyCheck />,
+  };
 
   return (
     <PageContainer>
       <Hero>
-        <h1>Nosotros</h1>
-        <p className="subtitle">Llevamos más de una década protegiendo lo que más valorás.</p>
+        <h1>{config.about.title}</h1>
+        <p className="subtitle">{config.about.subtitle}</p>
       </Hero>
 
       <ContentGrid>
         <HistoryCard>
-          <h2>Nuestra Historia</h2>
-          <p>
-            Desde Montevideo, hemos transformado la manera en que nuestros clientes gestionan sus riesgos, combinando tecnología y calidez humana.
-          </p>
-          <p>
-            Nuestro enfoque no es simplemente vender pólizas; es diseñar escudos a medida que te permitan vivir y trabajar con total libertad.
-          </p>
+          <h2>{config.about.historyTitle}</h2>
+          {config.about.paragraphs.map((paragraph, index) => (
+            <p key={index}>{paragraph}</p>
+          ))}
         </HistoryCard>
 
         <FeaturesGrid>
-          {features.map((feature, index) => (
+          {config.about.features.map((feature, index) => (
             <FeatureCard key={index}>
-              <div className="icon-box">{feature.icon}</div>
+              <div className="icon-box">{iconMap[feature.icon] || <FiShield />}</div>
               <h3>{feature.title}</h3>
               <p>{feature.description}</p>
             </FeatureCard>
@@ -250,7 +249,7 @@ function About() {
       </ContentGrid>
 
       <FooterCTA>
-        <CTAButton onClick={openModal}>Solicitar Cotización</CTAButton>
+        <CTAButton onClick={openModal}>{config.about.ctaLabel}</CTAButton>
       </FooterCTA>
 
       {/* LÓGICA DEL MODAL */}

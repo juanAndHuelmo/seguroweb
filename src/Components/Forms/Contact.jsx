@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import emailjs from "@emailjs/browser";
 import "../../styles/QuotationForm.css";
+import { useAppConfig } from "../../Context/AppConfigContext";
 
 emailjs.init("FWhla7meyPyV00HZZ");
 
 function Contact({ onClose }) {
+  const { config } = useAppConfig();
+  const contactConfig = config.contact;
   const [formData, setFormData] = useState({
     name: "",
     lastName: "",
@@ -20,6 +23,10 @@ function Contact({ onClose }) {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [errorMsg, setErrorMsg] = useState("");
+
+  useEffect(() => {
+    emailjs.init(contactConfig.emailjs.publicKey);
+  }, [contactConfig.emailjs.publicKey]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -81,8 +88,8 @@ function Contact({ onClose }) {
 
     try {
       await emailjs.send(
-        "service_qsf0m5b",
-        "template_qjor7vt",
+        contactConfig.emailjs.serviceId,
+        contactConfig.emailjs.templateId,
         {
           from_name: `${formData.name} ${formData.lastName}`,
           from_email: formData.email,
@@ -110,7 +117,7 @@ function Contact({ onClose }) {
 
       setCaptchaValue(null);
     } catch (error) {
-      setErrorMsg("Error al enviar el mensaje.");
+      setErrorMsg(contactConfig.errorMessage);
     }
 
     setLoading(false);
@@ -120,19 +127,19 @@ function Contact({ onClose }) {
     <div className="quotation-form-container">
       <div className="form-wrapper">
         <header className="form-header">
-          <h2>Contacto</h2>
-          <p>Envíanos tu consulta</p>
+          <h2>{contactConfig.title}</h2>
+          <p>{contactConfig.subtitle}</p>
         </header>
 
         {submitted && (
           <div className="success-message fade-in">
-            ✅ Mensaje enviado correctamente.
+            {contactConfig.successMessage}
           </div>
         )}
 
         {errorMsg && (
           <div className="error-message fade-in">
-            ❌ {errorMsg}
+            {errorMsg}
           </div>
         )}
 
@@ -187,10 +194,9 @@ function Contact({ onClose }) {
                 onChange={handleChange}
               >
                 <option value="">Tipo de consulta</option>
-                <option value="cotizacion">Cotización</option>
-                <option value="reclamo">Reclamo</option>
-                <option value="sugerencia">Sugerencia</option>
-                <option value="otro">Otro</option>
+                {contactConfig.queryTypes.map(type => (
+                  <option key={type.value} value={type.value}>{type.label}</option>
+                ))}
               </select>
             </div>
 
@@ -205,7 +211,7 @@ function Contact({ onClose }) {
 
           <div style={{ marginBottom: "1rem" }}>
             <ReCAPTCHA
-              sitekey="6LcYososAAAAANiGCDq90Exc3GTVzzoDgF2CnBSE"
+              sitekey={contactConfig.recaptchaSiteKey}
               onChange={handleCaptchaChange}
             />
             {errors.captcha && (
@@ -214,7 +220,7 @@ function Contact({ onClose }) {
           </div>
 
           <button type="submit" className="submit-btn" disabled={loading}>
-            {loading ? "⏳ Enviando..." : "Enviar Consulta"}
+            {loading ? contactConfig.loadingLabel : contactConfig.submitLabel}
           </button>
         </form>
       </div>

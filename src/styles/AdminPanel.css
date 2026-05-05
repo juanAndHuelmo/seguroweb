@@ -37,7 +37,7 @@
   position: fixed;
   right: 0;
   top: 0;
-  width: 400px;
+  width: 460px;
   height: 100vh;
   background: white;
   box-shadow: -5px 0 30px rgba(0, 0, 0, 0.2);
@@ -94,21 +94,179 @@
 
 .admin-tabs {
   display: flex;
+  flex-wrap: wrap;
   border-bottom: 1px solid #ddd;
   background: white;
 }
 
 .admin-tab {
-  flex: 1;
-  padding: 1rem;
+  flex: 1 0 33.333%;
+  padding: 0.8rem 0.6rem;
   border: none;
   background: none;
   cursor: pointer;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 500;
   color: #666;
   transition: all 0.3s ease;
   border-bottom: 3px solid transparent;
+}
+
+.admin-help {
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: -0.75rem 0 1rem;
+}
+
+.config-editor {
+  width: 100%;
+  min-height: 440px;
+  resize: vertical;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #222;
+  background: #fbfbfb;
+  box-sizing: border-box;
+}
+
+.config-editor:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.config-error {
+  color: #b91c1c;
+  background: #fee2e2;
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.admin-actions {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.admin-login {
+  display: grid;
+  gap: 1rem;
+  color: #333;
+}
+
+.admin-login p,
+.admin-login small {
+  color: #666;
+  line-height: 1.5;
+}
+
+.admin-login input,
+.admin-field input,
+.admin-field textarea,
+.admin-field select {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 0.95rem;
+  color: #222;
+  background: white;
+  box-sizing: border-box;
+}
+
+.admin-login input:focus,
+.admin-field input:focus,
+.admin-field textarea:focus,
+.admin-field select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+}
+
+.admin-field {
+  display: grid;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.admin-field span {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.admin-section h4 {
+  margin: 1.25rem 0 0.75rem;
+  color: #111827;
+  font-size: 0.98rem;
+}
+
+.admin-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: #fbfbfb;
+}
+
+.card-title-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.card-title-row h4 {
+  margin: 0;
+}
+
+.image-preview {
+  width: 96px;
+  height: 72px;
+  object-fit: contain;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+  padding: 0.35rem;
+}
+
+.image-preview.wide {
+  width: 160px;
+  height: 90px;
+  object-fit: cover;
+}
+
+.btn-save {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--color-primary);
+  border: 2px solid var(--color-primary);
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  color: white;
+}
+
+.btn-danger {
+  padding: 0.45rem 0.7rem;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  background: #fee2e2;
+  color: #991b1b;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-danger.wide {
+  width: 100%;
+  padding: 0.75rem;
 }
 
 .admin-tab:hover {
