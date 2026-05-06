@@ -15,12 +15,12 @@ const fadeIn = keyframes`
 
 // --- Temas macOS Light ---
 const theme = {
-  bg: '#F5F5F7', // Gris muy claro típico de Apple
+  bg: 'var(--color-light)',
   white: '#FFFFFF',
-  primaryGreen: '#064e3b', // Verde esmeralda para las cajas
-  accentGreen: '#10b981',
-  textMain: '#1D1D1F',
-  textSecondary: '#86868B',
+  primary: 'var(--color-primary)',
+  secondary: 'var(--color-secondary)',
+  accent: 'var(--color-accent)',
+  textMain: 'var(--color-dark)',
 };
 
 const HomePageWrapper = styled.div`
@@ -47,12 +47,12 @@ const HomePageWrapper = styled.div`
 
 // Contenedor especial para resaltar secciones con el verde que te gusta
 const HighlightedSection = styled.div`
-  background-color: ${theme.primaryGreen};
+  background: linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%);
   color: white;
   border-radius: 40px; // Bordes muy redondeados tipo iPhone
   margin: 20px;
   padding: 40px 0;
-  box-shadow: 0 20px 40px rgba(6, 78, 59, 0.15);
+  box-shadow: 0 20px 40px color-mix(in srgb, ${theme.primary} 25%, transparent);
 
   /* Ajuste para que las secciones internas se vean blancas sobre el verde */
   h2, p, h3 {
@@ -64,17 +64,15 @@ const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  width: 90%;
+  width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   display: flex;
-  justify-content: center;
   align-items: center;
   z-index: 10000;
-  padding: 20px;
-`;
+  justify-content: center;`;
 
 const ModalContainer = styled.div`
   width: 100%;

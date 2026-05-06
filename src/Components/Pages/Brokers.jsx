@@ -1,10 +1,11 @@
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
+import { useSiteContent } from '../../Hooks/useSiteContent';
 
 /* ===== ANIMACIONES ===== */
 const scroll = keyframes`
   0% { transform: translateX(0); }
-  100% { transform: translateX(calc(-250px * 6)); } 
+  100% { transform: translateX(calc(-260px * var(--broker-count))); } 
 `;
 
 /* ===== ESTILOS ===== */
@@ -12,7 +13,7 @@ const scroll = keyframes`
 const SectionWrapper = styled.section`
   padding: 100px 0;
   text-align: center;
-  background-color: #064e3b; // Verde esmeralda profundo idéntico al About
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
 `;
 
@@ -26,13 +27,13 @@ const Header = styled.div`
     letter-spacing: -0.02em;
     margin-bottom: 16px;
     /* Gradiente de texto igual al About */
-    background: linear-gradient(180deg, #fff 0%, #a7f3d0 100%);
+    background: linear-gradient(180deg, #fff 0%, var(--color-accent) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 
   p {
-    color: #a7f3d0;
+    color: var(--color-accent);
     font-size: 1.2rem;
     font-weight: 300;
     max-width: 700px;
@@ -61,19 +62,19 @@ const MarqueeContainer = styled.div`
   &::before {
     left: 0;
     top: 0;
-    background: linear-gradient(to right, #064e3b 10%, rgba(6, 78, 59, 0) 100%);
+    background: linear-gradient(to right, var(--color-primary) 10%, transparent 100%);
   }
 
   &::after {
     right: 0;
     top: 0;
-    background: linear-gradient(to left, #064e3b 10%, rgba(6, 78, 59, 0) 100%);
+    background: linear-gradient(to left, var(--color-secondary) 10%, transparent 100%);
   }
 `;
 
 const MarqueeTrack = styled.div`
   display: flex;
-  width: calc(250px * 12); 
+  width: calc(260px * var(--broker-total));
   animation: ${scroll} 35s linear infinite;
 
   &:hover {
@@ -117,30 +118,35 @@ const Image = styled.img`
 
 /* ===== COMPONENTE ===== */
 
+const getAssetUrl = (path) => {
+  if (!path) return '';
+  if (path.startsWith('http') || path.startsWith('data:')) return path;
+  return process.env.PUBLIC_URL + path;
+};
+
 function Brokers() {
-  const brokers = [
-    { name: 'SURA', image: process.env.PUBLIC_URL + '/Images/Logos/Brokers/sura.svg' },
-    { name: 'Berkley', image: process.env.PUBLIC_URL + '/Images/Logos/Brokers/berkley.jpeg' },
-    { name: 'PORTO', image: process.env.PUBLIC_URL + '/Images/Logos/Brokers/porto.webp' },
-    { name: 'Surco', image: process.env.PUBLIC_URL + '/Images/Logos/Brokers/surco.png' },
-    { name: 'Barbuss', image: process.env.PUBLIC_URL + '/Images/Logos/Brokers/barbuss.jpeg' },
-    { name: 'BSE', image: process.env.PUBLIC_URL + '/Images/Logos/Brokers/bse.png' },
-  ];
+  const { content } = useSiteContent();
+  const brokers = content.brokers.items;
 
   const fullList = [...brokers, ...brokers];
 
   return (
     <SectionWrapper>
       <Header>
-        <h2>Nuestras Aseguradoras</h2>
-        <p>Trabajamos con compañías líderes para ofrecerte la mejor cobertura, precio y respaldo.</p>
+        <h2>{content.brokers.title}</h2>
+        <p>{content.brokers.subtitle}</p>
       </Header>
 
       <MarqueeContainer>
-        <MarqueeTrack>
+        <MarqueeTrack
+          style={{
+            '--broker-count': brokers.length,
+            '--broker-total': fullList.length,
+          }}
+        >
           {fullList.map((broker, index) => (
             <LogoCard key={index}>
-              <Image src={broker.image} alt={broker.name} />
+              <Image src={getAssetUrl(broker.image)} alt={broker.name} />
             </LogoCard>
           ))}
         </MarqueeTrack>

@@ -18,8 +18,8 @@ const Overlay = styled.div`
   display:flex;
   justify-content:center;
   align-items:center;
-  padding:20px;
-`;
+  z-index:1000;
+  padding:20px; `;
 
 const Container = styled.div`
   width:100%;

@@ -1,25 +1,25 @@
 import React from "react";
 import { FaInstagram, FaFacebookF, FaLinkedinIn } from "react-icons/fa";
+import { useSiteContent } from "../../Hooks/useSiteContent";
 import "../styles/Footer.css";
 
 export default function Footer() {
+    const { content } = useSiteContent();
+    const { footer } = content;
+
     return (
         <footer className="footer">
             <div className="footer-container">
                 <div className="footer-section">
                     <h3>Contacto</h3>
-                    <p><strong>Email:</strong> phuelmoseguros@gmail.com</p>
-                    <p><strong>Teléfono:</strong> +598 92 290 092</p>
-                    <p><strong>Horario:</strong> Lunes a viernes 9:00 - 17:00</p>
+                    <p><strong>Email:</strong> {footer.email}</p>
+                    <p><strong>Teléfono:</strong> {footer.phone}</p>
+                    <p><strong>Horario:</strong> {footer.schedule}</p>
                 </div>
 
                 <div className="footer-section">
                     <h3>Sobre Nosotros</h3>
-                    <p>
-                        Huelmo Seguros se dedica a proteger a las personas,
-                        familias y empresas ante riesgos imprevistos que puedan
-                        afectar su bienestar financiero y calidad de vida.
-                    </p>
+                    <p>{footer.about}</p>
                 </div>
 
                 <div className="footer-section">
@@ -36,7 +36,7 @@ export default function Footer() {
                 
                     <div className="social-links">
                         <a
-                            href="https://www.instagram.com/huelmoseguros"
+                            href={footer.instagram}
                             target="_blank"
                             rel="noopener noreferrer"
                             title="Instagram"
@@ -45,7 +45,7 @@ export default function Footer() {
                         </a>
 
                         <a
-                            href="https://www.facebook.com/huelmoseguros"
+                            href={footer.facebook}
                             target="_blank"
                             rel="noopener noreferrer"
                             title="Facebook"
@@ -54,7 +54,7 @@ export default function Footer() {
                         </a>
 
                         <a
-                            href="https://linkedin.com"
+                            href={footer.linkedin}
                             target="_blank"
                             rel="noopener noreferrer"
                             title="LinkedIn"

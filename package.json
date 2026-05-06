@@ -20,6 +20,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "admin:backend": "node admin-backend/server.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",

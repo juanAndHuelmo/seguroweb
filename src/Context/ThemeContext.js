@@ -3,6 +3,14 @@ import { createContext, useState, useEffect } from 'react';
 export const ThemeContext = createContext();
 
 const DEFAULT_THEMES = {
+  original: {
+    primary: '#064e3b',
+    secondary: '#2d5016',
+    accent: '#10b981',
+    dark: '#1d1d1f',
+    light: '#f5f5f7',
+    name: 'Huelmo Original'
+  },
   purple: {
     primary: '#667eea',
     secondary: '#764ba2',
@@ -45,10 +53,22 @@ const DEFAULT_THEMES = {
   },
 };
 
+const BASE_THEME_KEYS = Object.keys(DEFAULT_THEMES);
+
 export function ThemeProvider({ children }) {
+  const [customThemes, setCustomThemes] = useState(() => {
+    const saved = localStorage.getItem('customThemes');
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  const allThemes = {
+    ...DEFAULT_THEMES,
+    ...customThemes,
+  };
+
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem('selectedTheme');
-    return saved ? JSON.parse(saved) : DEFAULT_THEMES.purple;
+    return saved ? JSON.parse(saved) : DEFAULT_THEMES.original;
   });
 
   const [customColors, setCustomColors] = useState(() => {
@@ -59,7 +79,8 @@ export function ThemeProvider({ children }) {
   useEffect(() => {
     localStorage.setItem('selectedTheme', JSON.stringify(theme));
     localStorage.setItem('customColors', JSON.stringify(customColors));
-  }, [theme, customColors]);
+    localStorage.setItem('customThemes', JSON.stringify(customThemes));
+  }, [theme, customColors, customThemes]);
 
   const updateTheme = (newTheme) => {
     setTheme(newTheme);
@@ -73,7 +94,24 @@ export function ThemeProvider({ children }) {
   };
 
   const resetColors = () => {
-    updateTheme(DEFAULT_THEMES.purple);
+    updateTheme(DEFAULT_THEMES.original);
+  };
+
+  const saveThemeTemplate = (templateKey, template) => {
+    setCustomThemes((currentTemplates) => ({
+      ...currentTemplates,
+      [templateKey]: template,
+    }));
+  };
+
+  const deleteThemeTemplate = (templateKey) => {
+    if (BASE_THEME_KEYS.includes(templateKey)) return;
+
+    setCustomThemes((currentTemplates) => {
+      const nextTemplates = { ...currentTemplates };
+      delete nextTemplates[templateKey];
+      return nextTemplates;
+    });
   };
 
   return (
@@ -83,7 +121,10 @@ export function ThemeProvider({ children }) {
         updateTheme,
         updateColor,
         resetColors,
-        defaultThemes: DEFAULT_THEMES,
+        defaultThemes: allThemes,
+        baseThemeKeys: BASE_THEME_KEYS,
+        saveThemeTemplate,
+        deleteThemeTemplate,
       }}
     >
       {children}

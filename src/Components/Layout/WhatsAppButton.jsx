@@ -1,8 +1,10 @@
 import '../../styles/WhatsAppButton.css';
+import { useSiteContent } from '../../Hooks/useSiteContent';
 
 function WhatsAppButton() {
-  const phoneNumber = '+598922290092';
-  const message = 'Hola, quiero más información sobre cotizar un seguro.';
+  const { content } = useSiteContent();
+  const phoneNumber = content.whatsapp.phone;
+  const message = content.whatsapp.message;
   const whatsappUrl = `https://wa.me/${phoneNumber.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
 
   return (

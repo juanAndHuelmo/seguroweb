@@ -1,16 +1,12 @@
+import { useSiteContent } from '../../Hooks/useSiteContent';
+
 function WhyUsSection() {
-  const items = [
-    'Cotización rápida',
-    'Asesores especializados',
-    'Amplia variedad',
-    'Acompañamiento en siniestros',
-    'Trato humano'
-  ];
+  const { content } = useSiteContent();
 
   return (
     <section className="why-us-section">
-      <h2>¿Por qué elegirnos?</h2>
-      {items.map((item, i) => (
+      <h2>{content.whyUs.title}</h2>
+      {content.whyUs.items.map((item, i) => (
         <div key={i}>{item}</div>
       ))}
     </section>

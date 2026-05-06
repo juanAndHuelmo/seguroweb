@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { useSiteContent } from '../../Hooks/useSiteContent';
 
 /* ===== CONFIG ===== */
 const AUTO_PLAY_INTERVAL = 4000;
@@ -12,7 +13,7 @@ const SectionWrapper = styled.section`
   align-items: center;
   padding: 80px 20px;
   gap: 40px;
-  background-color: #f5f5f7;
+  background-color: var(--color-light);
 `;
 
 const MainCard = styled.div`
@@ -91,7 +92,7 @@ const GlassContent = styled.div`
 `;
 
 const GreenButton = styled.button`
-  background: #2d5a41;
+  background: var(--color-primary);
   color: white;
   border: none;
   padding: 16px 40px;
@@ -109,7 +110,7 @@ const DarkDock = styled.div`
   display: flex;
   gap: 12px;
   padding: 14px;
-  background: #1d3d2c;
+  background: var(--color-dark);
   border-radius: 28px;
 `;
 
@@ -140,44 +141,17 @@ const DockItem = styled.button`
   }
 `;
 
-/* ===== DATA ===== */
-
-const services = [
-  {
-    title: 'Vehículos',
-    icon: process.env.PUBLIC_URL + '/Images/Logos/vehiculo.jpg',
-    imagen: process.env.PUBLIC_URL + '/Images/fondovehiculo.jpg',
-    description: 'Cotice la cobertura para su vehículo con los mejores beneficios y respaldo.'
-  },
-  {
-    title: 'Hogar',
-    icon: process.env.PUBLIC_URL + '/Images/Logos/hogar.jpg',
-    imagen: process.env.PUBLIC_URL + '/Images/fondohogar.jpg',
-    description: 'Proteja su casa y sus bienes contra todo riesgo con planes a medida.'
-  },
-  {
-    title: 'Comercio',
-    icon: process.env.PUBLIC_URL + '/Images/Logos/Empresa.jpg',
-    imagen: process.env.PUBLIC_URL + '/Images/fondocomercio.jpg',
-    description: 'Acceda a un combinado de coberturas para proteger su negocio e inversión.'
-  },
-  {
-    title: 'Vida',
-    icon: process.env.PUBLIC_URL + '/Images/Logos/vida.jpg',
-    imagen: process.env.PUBLIC_URL + '/Images/fondovida.jpg',
-    description: 'La tranquilidad de saber que el futuro de los suyos está siempre protegido.'
-  },
-  {
-    title: 'Viaje',
-    icon: process.env.PUBLIC_URL + '/Images/Logos/viaje.jpg',
-    imagen: process.env.PUBLIC_URL + '/Images/fondoviaje.jpg',
-    description: 'Viaje seguro al exterior con la asistencia médica y respaldo internacional.'
-  }
-];
-
 /* ===== COMPONENT ===== */
 
+const getAssetUrl = (path) => {
+  if (!path) return '';
+  if (path.startsWith('http') || path.startsWith('data:')) return path;
+  return process.env.PUBLIC_URL + path;
+};
+
 function ServicesSection({ openQuote }) {
+  const { content } = useSiteContent();
+  const services = content.services;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hoverIndex, setHoverIndex] = useState(null);
 
@@ -185,23 +159,23 @@ function ServicesSection({ openQuote }) {
 
   const activeIndex = hoverIndex !== null ? hoverIndex : currentIndex;
 
-  const nextService = () => {
+  const nextService = useCallback(() => {
     setCurrentIndex(prev => (prev + 1) % services.length);
-  };
+  }, [services.length]);
+
+  const stopAutoPlay = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+  }, []);
+
+  const startAutoPlay = useCallback(() => {
+    stopAutoPlay();
+    intervalRef.current = setInterval(nextService, AUTO_PLAY_INTERVAL);
+  }, [nextService, stopAutoPlay]);
 
   useEffect(() => {
     startAutoPlay();
     return stopAutoPlay;
-  }, []);
-
-  const startAutoPlay = () => {
-    stopAutoPlay();
-    intervalRef.current = setInterval(nextService, AUTO_PLAY_INTERVAL);
-  };
-
-  const stopAutoPlay = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-  };
+  }, [startAutoPlay, stopAutoPlay]);
 
   return (
     <SectionWrapper>
@@ -213,7 +187,7 @@ function ServicesSection({ openQuote }) {
         {services.map((s, i) => (
           <BackgroundLayer
             key={i}
-            bg={s.imagen}
+            bg={getAssetUrl(s.imagen)}
             active={i === activeIndex}
           />
         ))}
@@ -222,7 +196,7 @@ function ServicesSection({ openQuote }) {
 
         <GlassContent>
           <div className="icon-container">
-            <img src={services[activeIndex].icon} alt="" />
+            <img src={getAssetUrl(services[activeIndex].icon)} alt="" />
           </div>
           <h2>{services[activeIndex].title}</h2>
           <p>{services[activeIndex].description}</p>
@@ -245,7 +219,7 @@ function ServicesSection({ openQuote }) {
             onMouseEnter={() => setHoverIndex(i)}
             onMouseLeave={() => setHoverIndex(null)}
           >
-            <img src={s.icon} alt={s.title} />
+            <img src={getAssetUrl(s.icon)} alt={s.title} />
           </DockItem>
         ))}
       </DarkDock>

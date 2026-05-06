@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import QuotationForm from '../Forms/QuotationForm';
+import { useSiteContent } from '../../Hooks/useSiteContent';
 import { FiUser, FiShield } from 'react-icons/fi';
 import { LuBriefcase } from 'react-icons/lu';
 import { MdSafetyCheck } from 'react-icons/md';
@@ -18,15 +19,16 @@ const modalScale = keyframes`
 
 // --- Temas y Estilos ---
 const theme = {
-  primaryGreen: '#064e3b',
-  accentGreen: '#10b981',
+  primary: 'var(--color-primary)',
+  secondary: 'var(--color-secondary)',
+  accent: 'var(--color-accent)',
   glassWhite: 'rgba(255, 255, 255, 0.08)',
   textGray: '#d1d5db',
 };
 
 const PageContainer = styled.div`
   min-height: 100vh;
-  background-color: ${theme.primaryGreen};
+  background: linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%);
   color: white;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
   padding: 100px 24px;
@@ -46,14 +48,14 @@ const Hero = styled.section`
     font-weight: 800;
     letter-spacing: -0.04em;
     margin-bottom: 16px;
-    background: linear-gradient(180deg, #fff 0%, #a7f3d0 100%);
+    background: linear-gradient(180deg, #fff 0%, var(--color-accent) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 
   .subtitle {
     font-size: clamp(1.1rem, 3vw, 1.4rem);
-    color: #a7f3d0;
+    color: var(--color-accent);
     max-width: 600px;
     margin: 0 auto;
     line-height: 1.5;
@@ -81,7 +83,7 @@ const HistoryCard = styled.div`
   h2 {
     font-size: 2.2rem;
     margin-bottom: 24px;
-    color: #34d399;
+    color: var(--color-accent);
     letter-spacing: -0.02em;
   }
 
@@ -128,7 +130,7 @@ const FeatureCard = styled.div`
   }
 
   .icon-box {
-    background: rgba(52, 211, 153, 0.15);
+    background: color-mix(in srgb, var(--color-accent) 20%, transparent);
     width: 70px;
     height: 70px;
     display: flex;
@@ -136,7 +138,7 @@ const FeatureCard = styled.div`
     justify-content: center;
     border-radius: 20px;
     margin-bottom: 24px;
-    color: #34d399;
+    color: var(--color-accent);
     font-size: 2rem;
   }
 
@@ -160,7 +162,7 @@ const FooterCTA = styled.div`
 
 const CTAButton = styled.button`
   background: white;
-  color: ${theme.primaryGreen};
+  color: ${theme.primary};
   border: none;
   padding: 20px 50px;
   font-size: 1.15rem;
@@ -172,7 +174,7 @@ const CTAButton = styled.button`
 
   &:hover {
     transform: scale(1.05) translateY(-5px);
-    background: ${theme.accentGreen};
+    background: ${theme.accent};
     color: white;
     box-shadow: 0 20px 45px rgba(16, 185, 129, 0.4);
   }
@@ -206,6 +208,7 @@ const ModalContent = styled.div`
 /* ===== COMPONENTE PRINCIPAL ===== */
 
 function About() {
+  const { content } = useSiteContent();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Función para cerrar el modal
@@ -213,35 +216,27 @@ function About() {
   // Función para abrir el modal
   const openModal = () => setIsModalOpen(true);
 
-  const features = [
-    { icon: <FiUser />, title: 'Atención Personalizada', description: 'Asesoramiento uno a uno adaptado a tu realidad específica.' },
-    { icon: <LuBriefcase />, title: 'Personal Profesional', description: 'Expertos certificados con trayectoria sólida en el mercado.' },
-    { icon: <FiShield />, title: 'Mayor Seguridad', description: 'Respaldo total de las compañías líderes a nivel mundial.' },
-    { icon: <MdSafetyCheck />, title: 'Planes Accesibles', description: 'Optimizamos tus costos sin sacrificar ni un ápice de cobertura.' },
-  ];
+  const icons = [<FiUser />, <LuBriefcase />, <FiShield />, <MdSafetyCheck />];
 
   return (
     <PageContainer>
       <Hero>
-        <h1>Nosotros</h1>
-        <p className="subtitle">Llevamos más de una década protegiendo lo que más valorás.</p>
+        <h1>{content.about.title}</h1>
+        <p className="subtitle">{content.about.subtitle}</p>
       </Hero>
 
       <ContentGrid>
         <HistoryCard>
-          <h2>Nuestra Historia</h2>
-          <p>
-            Desde Montevideo, hemos transformado la manera en que nuestros clientes gestionan sus riesgos, combinando tecnología y calidez humana.
-          </p>
-          <p>
-            Nuestro enfoque no es simplemente vender pólizas; es diseñar escudos a medida que te permitan vivir y trabajar con total libertad.
-          </p>
+          <h2>{content.about.historyTitle}</h2>
+          {content.about.historyParagraphs.map((paragraph, index) => (
+            <p key={index}>{paragraph}</p>
+          ))}
         </HistoryCard>
 
         <FeaturesGrid>
-          {features.map((feature, index) => (
+          {content.about.features.map((feature, index) => (
             <FeatureCard key={index}>
-              <div className="icon-box">{feature.icon}</div>
+              <div className="icon-box">{icons[index] || <FiShield />}</div>
               <h3>{feature.title}</h3>
               <p>{feature.description}</p>
             </FeatureCard>
@@ -250,7 +245,7 @@ function About() {
       </ContentGrid>
 
       <FooterCTA>
-        <CTAButton onClick={openModal}>Solicitar Cotización</CTAButton>
+        <CTAButton onClick={openModal}>{content.about.ctaText}</CTAButton>
       </FooterCTA>
 
       {/* LÓGICA DEL MODAL */}
