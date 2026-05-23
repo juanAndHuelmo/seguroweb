@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect } from 'react';
+import { getApiUrl } from '../config/adminApi';
 
 export const ThemeContext = createContext();
 
@@ -77,6 +78,28 @@ export function ThemeProvider({ children }) {
   });
 
   useEffect(() => {
+    const loadPublishedTheme = async () => {
+      try {
+        const response = await fetch(getApiUrl('/api/settings'));
+        if (!response.ok) return;
+
+        const settings = await response.json();
+        if (settings.theme && Object.keys(settings.theme).length > 0) {
+          setTheme(settings.theme);
+          setCustomColors(settings.theme);
+        }
+        if (settings.customThemes && Object.keys(settings.customThemes).length > 0) {
+          setCustomThemes(settings.customThemes);
+        }
+      } catch (error) {
+        // Si la API no está disponible, usamos la paleta local.
+      }
+    };
+
+    loadPublishedTheme();
+  }, []);
+
+  useEffect(() => {
     localStorage.setItem('selectedTheme', JSON.stringify(theme));
     localStorage.setItem('customColors', JSON.stringify(customColors));
     localStorage.setItem('customThemes', JSON.stringify(customThemes));
@@ -122,6 +145,7 @@ export function ThemeProvider({ children }) {
         updateColor,
         resetColors,
         defaultThemes: allThemes,
+        customThemes,
         baseThemeKeys: BASE_THEME_KEYS,
         saveThemeTemplate,
         deleteThemeTemplate,

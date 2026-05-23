@@ -1,70 +1,144 @@
-# Getting Started with Create React App
+# Huelmo Seguros Web
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Sitio web administrable para Huelmo Seguros. Incluye una web publica en React, un panel admin visual y un backend Node simple para autenticacion, guardado de contenido e imagenes.
 
-## Available Scripts
+## Stack
 
-In the project directory, you can run:
+- React con Create React App
+- Styled Components
+- EmailJS para envio de formularios
+- Google reCAPTCHA v2 en formularios
+- Backend Node sin framework en `admin-backend/server.js`
+- Persistencia por archivos JSON y carpeta de uploads
 
-### `npm start`
+## Estructura Principal
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```text
+admin-backend/
+  server.js                 API de admin, settings e imagenes
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+src/
+  App.js                    Entrada principal y deteccion de /admin
+  Components/
+    AdminPanel/
+      AdminWorkspace.jsx    Panel admin actual
+    Forms/                  Contacto y cotizacion
+    HomeSections/           Secciones de home
+    Layout/                 NavBar, Footer, WhatsApp
+    Pages/                  Home, About, Brokers
+  Context/
+    SiteContentContext.js   Contenido editable
+    ThemeContext.js         Colores editables
+  Hooks/
+    useSiteContent.js
+    useTheme.js
+  config/
+    adminApi.js             URL de API admin
+```
 
-### `npm test`
+## Comandos Locales
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Instalar dependencias:
 
-### `npm run build`
+```bash
+npm install
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Levantar frontend:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+npm start
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Levantar backend admin:
 
-### `npm run eject`
+```bash
+npm run admin
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Tests:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+npm test -- --watchAll=false
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Build de produccion:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+npm run build
+```
 
-## Learn More
+## URLs Locales
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- Web: `http://localhost:3000`
+- Admin: `http://localhost:3000/admin`
+- API: `http://localhost:4000`
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Si la app esta servida con subruta, tambien puede funcionar como:
 
-### Code Splitting
+- `http://localhost:3000/seguroweb/admin`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Variables De Entorno
 
-### Analyzing the Bundle Size
+Frontend:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```bash
+REACT_APP_ADMIN_API_URL=http://localhost:4000
+```
 
-### Making a Progressive Web App
+Backend:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```bash
+ADMIN_PASSWORD=admin123
+ADMIN_SECRET=change-this-secret
+ADMIN_ALLOWED_ORIGIN=http://localhost:3000
+PUBLIC_API_URL=http://localhost:4000
+ADMIN_DATA_DIR=./admin-backend
+UPLOADS_DIR=./admin-backend/uploads
+MAX_UPLOAD_BYTES=5242880
+```
 
-### Advanced Configuration
+En produccion, cambiar `ADMIN_PASSWORD` y `ADMIN_SECRET`.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## Admin
 
-### Deployment
+El panel admin permite editar:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+- Servicios: titulo, descripcion, icono e imagen de fondo.
+- Beneficios.
+- Nosotros.
+- Aseguradoras y logos.
+- Contacto/footer.
+- WhatsApp.
+- Colores principales.
 
-### `npm run build` fails to minify
+Los cambios se ven en el preview en vivo. Para publicarlos, presionar `Guardar`.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Imagenes
+
+El admin permite:
+
+- Pegar URL externa.
+- Usar ruta interna como `/Images/Logos/vehiculo.jpg`.
+- Subir archivo desde la computadora.
+
+Las imagenes subidas van al backend:
+
+```text
+/uploads/<archivo>
+```
+
+En produccion, esa carpeta debe estar en un disco persistente. Ver [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
+## Formularios
+
+- `Contact.jsx` envia consultas con EmailJS y reCAPTCHA.
+- `QuotationForm.jsx` envia solicitudes de cotizacion con EmailJS y reCAPTCHA.
+
+Configurar las claves de EmailJS y reCAPTCHA antes de publicar.
+
+## Documentacion Adicional
+
+- [Deploy y produccion](docs/DEPLOYMENT.md)
+- [API admin](docs/API.md)
+- [Mantenimiento](docs/MAINTENANCE.md)

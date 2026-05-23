@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { Suspense, lazy, useState, useEffect } from 'react';
 import './App.css';
 import { useTheme } from './Hooks/useTheme';
 import NavBar from './Components/Layout/NavBar';
@@ -8,7 +8,8 @@ import Brokers from './Components/Pages/Brokers';
 import Contact from './Components/Forms/Contact';
 import Footer from './Components/Layout/Footer';
 import WhatsAppButton from './Components/Layout/WhatsAppButton';
-import AdminPanel from './Components/Admin/AdminPanel';
+
+const AdminWorkspace = lazy(() => import('./Components/AdminPanel/AdminWorkspace'));
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -43,7 +44,9 @@ function App() {
   return (
     <div className="App">
       {isAdminPage ? (
-        <AdminPanel />
+        <Suspense fallback={<div style={{ padding: 40 }}>Cargando editor...</div>}>
+          <AdminWorkspace />
+        </Suspense>
       ) : (
         <>
           <NavBar currentPage={currentPage} setCurrentPage={setCurrentPage} />

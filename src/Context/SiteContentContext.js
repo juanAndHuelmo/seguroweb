@@ -1,4 +1,5 @@
 import { createContext, useEffect, useState } from 'react';
+import { getApiUrl } from '../config/adminApi';
 
 export const SiteContentContext = createContext();
 
@@ -121,6 +122,24 @@ export function SiteContentProvider({ children }) {
     const saved = localStorage.getItem(STORAGE_KEY);
     return saved ? mergeContent(JSON.parse(saved)) : DEFAULT_SITE_CONTENT;
   });
+
+  useEffect(() => {
+    const loadPublishedSettings = async () => {
+      try {
+        const response = await fetch(getApiUrl('/api/settings'));
+        if (!response.ok) return;
+
+        const settings = await response.json();
+        if (settings.content && Object.keys(settings.content).length > 0) {
+          setContent(mergeContent(settings.content));
+        }
+      } catch (error) {
+        // Si la API no está disponible, usamos el contenido local.
+      }
+    };
+
+    loadPublishedSettings();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(content));

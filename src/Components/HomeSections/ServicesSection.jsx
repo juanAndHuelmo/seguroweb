@@ -31,12 +31,12 @@ const MainCard = styled.div`
 const BackgroundLayer = styled.div`
   position: absolute;
   inset: 0;
-  background-image: url(${props => props.bg});
+  background-image: url(${props => props.$bg});
   background-size: cover;
   background-position: center;
 
-  opacity: ${props => (props.active ? 1 : 0)};
-  transform: ${props => (props.active ? 'scale(1)' : 'scale(1.05)')};
+  opacity: ${props => (props.$active ? 1 : 0)};
+  transform: ${props => (props.$active ? 'scale(1)' : 'scale(1.05)')};
 
   transition: opacity 0.8s ease, transform 1.2s ease;
 `;
@@ -124,11 +124,11 @@ const DockItem = styled.button`
   padding: 0;
   background: #fff;
 
-  opacity: ${props => (props.active ? 1 : 0.5)};
-  transform: ${props => (props.active ? 'scale(1.2) translateY(-8px)' : 'scale(1)')};
+  opacity: ${props => (props.$active ? 1 : 0.5)};
+  transform: ${props => (props.$active ? 'scale(1.2) translateY(-8px)' : 'scale(1)')};
 
   box-shadow: ${props =>
-    props.active
+    props.$active
       ? '0 10px 20px rgba(0,0,0,0.3)'
       : '0 4px 10px rgba(0,0,0,0.1)'};
 
@@ -187,8 +187,8 @@ function ServicesSection({ openQuote }) {
         {services.map((s, i) => (
           <BackgroundLayer
             key={i}
-            bg={getAssetUrl(s.imagen)}
-            active={i === activeIndex}
+            $bg={getAssetUrl(s.imagen)}
+            $active={i === activeIndex}
           />
         ))}
 
@@ -211,7 +211,7 @@ function ServicesSection({ openQuote }) {
         {services.map((s, i) => (
           <DockItem
             key={i}
-            active={i === activeIndex}
+            $active={i === activeIndex}
             onClick={() => {
               setCurrentIndex(i);
               setHoverIndex(null);

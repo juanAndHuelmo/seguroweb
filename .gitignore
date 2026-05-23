@@ -11,8 +11,15 @@
 # production
 /build
 
+# admin runtime data
+/admin-backend/db.json
+/admin-backend/site-settings.json
+/admin-backend/uploads
+/admin-api/data
+
 # misc
 .DS_Store
+.env
 .env.local
 .env.development.local
 .env.test.local

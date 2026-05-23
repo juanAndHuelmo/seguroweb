@@ -1,8 +1,16 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
+import { ThemeProvider } from './Context/ThemeContext';
+import { SiteContentProvider } from './Context/SiteContentContext';
 
-test('renders learn react link', () => {
-  render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+test('renders the insurance site', () => {
+  render(
+    <ThemeProvider>
+      <SiteContentProvider>
+        <App />
+      </SiteContentProvider>
+    </ThemeProvider>
+  );
+
+  expect(screen.getAllByText(/Huelmo Seguros/i).length).toBeGreaterThan(0);
 });

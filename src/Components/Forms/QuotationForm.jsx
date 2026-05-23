@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import emailjs from '@emailjs/browser';
 import styled, { keyframes } from 'styled-components';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 emailjs.init('FWhla7meyPyV00HZZ');
 
@@ -59,8 +60,8 @@ const Tabs = styled.div`
 const Tab = styled.button`
   min-width:85px;
   border-radius:12px;
-  border:2px solid ${p=>p.active?'#064e3b':'transparent'};
-  background:${p=>p.active?'#ecfdf5':'#fff'};
+  border:2px solid ${p=>p.$active?'#064e3b':'transparent'};
+  background:${p=>p.$active?'#ecfdf5':'#fff'};
   padding:6px;
   cursor:pointer;
   display:flex;
@@ -72,7 +73,7 @@ const Tab = styled.button`
     height:60px;
     object-fit:cover;
     border-radius:10px;
-    opacity:${p=>p.active?1:0.6};
+    opacity:${p=>p.$active?1:0.6};
   }
 
   span{
@@ -111,6 +112,24 @@ const Button = styled.button`
   background:${p=>p.disabled?'#ccc':'#064e3b'};
   color:white;
   font-weight:600;
+`;
+
+const CaptchaWrap = styled.div`
+  margin-top: 18px;
+  display: flex;
+  justify-content: center;
+
+  @media(max-width:420px){
+    transform: scale(0.86);
+    transform-origin: center;
+  }
+`;
+
+const FormMessage = styled.p`
+  margin: 12px 0 0;
+  color: ${p => (p.$error ? '#b91c1c' : '#047857')};
+  font-weight: 700;
+  text-align: center;
 `;
 
 /* ===== COMPONENT ===== */
@@ -161,6 +180,9 @@ export default function QuotationForm({onClose}){
       fullName:'', email:'', phone:'', ci:''
     }
   });
+  const [captchaValue, setCaptchaValue] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState('');
 
   const changeType=(type)=>{
     setForm(prev=>({...prev,insuranceType:type}));
@@ -199,8 +221,15 @@ export default function QuotationForm({onClose}){
   };
 
   const handleSubmit=async()=>{
+    if(loading) return;
+
     if(!isValid()){
       alert('Completá los datos requeridos');
+      return;
+    }
+
+    if(!captchaValue){
+      setSubmitMessage('Completá el CAPTCHA antes de enviar.');
       return;
     }
 
@@ -211,16 +240,23 @@ export default function QuotationForm({onClose}){
     };
 
     try{
+      setLoading(true);
+      setSubmitMessage('');
+
       await emailjs.send('service_qsf0m5b','template_hw7rel8',{
         from_name:data.fullName,
         from_email:data.email,
+        'g-recaptcha-response': captchaValue,
         message:JSON.stringify(data,null,2)
       });
 
+      setSubmitMessage('Solicitud enviada correctamente.');
       onClose && onClose();
 
     }catch{
-      alert('Error al enviar');
+      setSubmitMessage('Error al enviar. Intentá nuevamente.');
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -238,7 +274,7 @@ export default function QuotationForm({onClose}){
           <Tabs>
             {types.map(t=>(
               <Tab key={t.value}
-                active={form.insuranceType===t.value}
+                $active={form.insuranceType===t.value}
                 onClick={()=>changeType(t.value)}
               >
                 <img src={t.img} alt={t.label}/>
@@ -364,11 +400,24 @@ export default function QuotationForm({onClose}){
             </Grid>
           </div>
 
+          <CaptchaWrap>
+            <ReCAPTCHA
+              sitekey="6LcYososAAAAANiGCDq90Exc3GTVzzoDgF2CnBSE"
+              onChange={setCaptchaValue}
+            />
+          </CaptchaWrap>
+
+          {submitMessage && (
+            <FormMessage $error={submitMessage.includes('Error') || submitMessage.includes('CAPTCHA')}>
+              {submitMessage}
+            </FormMessage>
+          )}
+
         </Content>
 
         <Footer>
-          <Button onClick={handleSubmit} disabled={!isValid()}>
-            Enviar solicitud
+          <Button onClick={handleSubmit} disabled={!isValid() || !captchaValue || loading}>
+            {loading ? 'Enviando...' : 'Enviar solicitud'}
           </Button>
         </Footer>
 
