@@ -5,8 +5,8 @@ const productionApiUrl = 'https://api.huelmoseguros.com.uy';
 export const APP_CONFIG = {
   endpoints: {
     adminApiUrl:
-      process.env.REACT_APP_ADMIN_API_URL ||
       process.env.REACT_APP_API_URL ||
+      process.env.REACT_APP_ADMIN_API_URL ||
       developmentApiUrl ||
       productionApiUrl,
   },

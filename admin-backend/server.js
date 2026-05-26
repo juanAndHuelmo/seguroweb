@@ -3,21 +3,48 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
+require('dotenv').config({ quiet: true });
+
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const IS_PRODUCTION = NODE_ENV === 'production';
 const PORT = Number(process.env.PORT || process.env.ADMIN_BACKEND_PORT || 4000);
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
-const ADMIN_SECRET = process.env.ADMIN_SECRET || 'change-this-secret';
+const ADMIN_USER = process.env.ADMIN_USER || '';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
+const ADMIN_SECRET = process.env.JWT_SECRET || process.env.ADMIN_SECRET || (
+  IS_PRODUCTION ? crypto.randomBytes(32).toString('hex') : 'dev-secret'
+);
 const TOKEN_TTL_MS = 1000 * 60 * 60 * 8;
-const DATA_DIR = process.env.ADMIN_DATA_DIR || __dirname;
+
+function resolveStoragePath(value, baseDir, fallback) {
+  if (!value) return fallback;
+  if (path.isAbsolute(value)) return value;
+  if (value.startsWith('.')) return path.resolve(__dirname, value);
+  return path.resolve(baseDir, value);
+}
+
+const DATA_DIR = resolveStoragePath(
+  process.env.DATA_DIR || process.env.ADMIN_DATA_DIR,
+  __dirname,
+  path.join(__dirname, 'data')
+);
 const DB_PATH = process.env.DB_PATH || path.join(DATA_DIR, 'db.json');
 const SETTINGS_PATH = process.env.SETTINGS_PATH || path.join(DATA_DIR, 'site-settings.json');
-const UPLOADS_DIR = process.env.UPLOADS_DIR || path.join(DATA_DIR, 'uploads');
+const UPLOADS_DIR = resolveStoragePath(process.env.UPLOADS_DIR, DATA_DIR, path.join(DATA_DIR, 'uploads'));
 const MAX_UPLOAD_BYTES = Number(process.env.MAX_UPLOAD_BYTES || 5 * 1024 * 1024);
 const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml']);
 const DEFAULT_ALLOWED_ORIGINS = [
+  'http://localhost:3000',
+  'https://musing-hopper.161-0-125-69.plesk.page',
   'https://huelmoseguros.com.uy',
   'https://www.huelmoseguros.com.uy',
 ];
-const ALLOWED_ORIGINS = (process.env.ADMIN_ALLOWED_ORIGIN || process.env.ADMIN_ALLOWED_ORIGINS || DEFAULT_ALLOWED_ORIGINS.join(','))
+const configuredOrigins = [
+  process.env.FRONTEND_URL,
+  process.env.ADMIN_ALLOWED_ORIGIN,
+  process.env.ADMIN_ALLOWED_ORIGINS,
+  DEFAULT_ALLOWED_ORIGINS.join(','),
+].filter(Boolean).join(',');
+const ALLOWED_ORIGINS = configuredOrigins
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
@@ -341,7 +368,8 @@ const server = http.createServer(async (request, response) => {
     sendJson(response, 200, {
       ok: true,
       service: 'huelmo-seguros-api',
-      environment: process.env.NODE_ENV || 'development',
+      environment: NODE_ENV,
+      timestamp: new Date().toISOString(),
     });
     return;
   }
@@ -349,6 +377,16 @@ const server = http.createServer(async (request, response) => {
   if (request.url === '/api/auth/login' && request.method === 'POST') {
     try {
       const body = await readJson(request);
+
+      if (!ADMIN_PASSWORD) {
+        sendJson(response, 503, { error: 'ADMIN_PASSWORD no esta configurado.' });
+        return;
+      }
+
+      if (ADMIN_USER && body.username && body.username !== ADMIN_USER) {
+        sendJson(response, 401, { error: 'Usuario incorrecto.' });
+        return;
+      }
 
       if (body.password !== ADMIN_PASSWORD) {
         sendJson(response, 401, { error: 'Contraseña incorrecta.' });
