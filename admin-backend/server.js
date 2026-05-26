@@ -7,7 +7,20 @@ require('dotenv').config({ quiet: true });
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const IS_PRODUCTION = NODE_ENV === 'production';
-const PORT = Number(process.env.PORT || process.env.ADMIN_BACKEND_PORT || 4000);
+
+function normalizePort(value) {
+  const port = Number.parseInt(String(value ?? ''), 10);
+  return Number.isNaN(port) || port < 0 || port >= 65536 ? null : port;
+}
+
+const PORT = normalizePort(process.env.PORT) ?? normalizePort(process.env.ADMIN_BACKEND_PORT) ?? 4000;
+if (process.env.PORT && normalizePort(process.env.PORT) === null) {
+  console.warn(`Invalid PORT environment variable: '${process.env.PORT}'. Falling back to ${PORT}.`);
+}
+if (process.env.ADMIN_BACKEND_PORT && normalizePort(process.env.ADMIN_BACKEND_PORT) === null) {
+  console.warn(`Invalid ADMIN_BACKEND_PORT environment variable: '${process.env.ADMIN_BACKEND_PORT}'. Falling back to ${PORT}.`);
+}
+
 const ADMIN_USER = process.env.ADMIN_USER || '';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 const ADMIN_SECRET = process.env.JWT_SECRET || process.env.ADMIN_SECRET || (
