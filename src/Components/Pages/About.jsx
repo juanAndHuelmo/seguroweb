@@ -48,14 +48,14 @@ const Hero = styled.section`
     font-weight: 800;
     letter-spacing: -0.04em;
     margin-bottom: 16px;
-    background: linear-gradient(180deg, #fff 0%, var(--color-accent) 100%);
+    background: linear-gradient(180deg, var(--section-title, #fff) 0%, var(--section-accent, var(--color-accent)) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 
   .subtitle {
     font-size: clamp(1.1rem, 3vw, 1.4rem);
-    color: var(--color-accent);
+    color: var(--section-accent, var(--color-accent));
     max-width: 600px;
     margin: 0 auto;
     line-height: 1.5;
@@ -83,14 +83,14 @@ const HistoryCard = styled.div`
   h2 {
     font-size: 2.2rem;
     margin-bottom: 24px;
-    color: var(--color-accent);
+    color: var(--section-accent, var(--color-accent));
     letter-spacing: -0.02em;
   }
 
   p {
     line-height: 1.8;
     font-size: 1.15rem;
-    color: ${theme.textGray};
+    color: var(--section-text, ${theme.textGray});
     margin-bottom: 24px;
     font-weight: 300;
   }
@@ -112,7 +112,7 @@ const FeaturesGrid = styled.div`
 `;
 
 const FeatureCard = styled.div`
-  background: ${theme.glassWhite};
+  background: var(--feature-card-bg, var(--section-card-bg, ${theme.glassWhite}));
   backdrop-filter: blur(10px);
   padding: 40px 30px;
   border-radius: 28px;
@@ -130,7 +130,7 @@ const FeatureCard = styled.div`
   }
 
   .icon-box {
-    background: color-mix(in srgb, var(--color-accent) 20%, transparent);
+    background: color-mix(in srgb, var(--feature-accent, var(--section-accent, var(--color-accent))) 20%, transparent);
     width: 70px;
     height: 70px;
     display: flex;
@@ -138,7 +138,7 @@ const FeatureCard = styled.div`
     justify-content: center;
     border-radius: 20px;
     margin-bottom: 24px;
-    color: var(--color-accent);
+    color: var(--feature-accent, var(--section-accent, var(--color-accent)));
     font-size: 2rem;
   }
 
@@ -150,7 +150,7 @@ const FeatureCard = styled.div`
 
   p {
     font-size: 0.95rem;
-    color: ${theme.textGray};
+    color: var(--feature-text, var(--section-text, ${theme.textGray}));
     line-height: 1.6;
   }
 `;
@@ -161,8 +161,8 @@ const FooterCTA = styled.div`
 `;
 
 const CTAButton = styled.button`
-  background: white;
-  color: ${theme.primary};
+  background: var(--section-button-bg, white);
+  color: var(--section-button-text, ${theme.primary});
   border: none;
   padding: 20px 50px;
   font-size: 1.15rem;
@@ -174,7 +174,7 @@ const CTAButton = styled.button`
 
   &:hover {
     transform: scale(1.05) translateY(-5px);
-    background: ${theme.accent};
+    background: var(--section-accent, ${theme.accent});
     color: white;
     box-shadow: 0 20px 45px rgba(16, 185, 129, 0.4);
   }
@@ -210,6 +210,7 @@ const ModalContent = styled.div`
 function About() {
   const { content } = useSiteContent();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const colors = content.styles?.about || {};
 
   // Función para cerrar el modal
   const closeModal = () => setIsModalOpen(false);
@@ -219,7 +220,15 @@ function About() {
   const icons = [<FiUser />, <LuBriefcase />, <FiShield />, <MdSafetyCheck />];
 
   return (
-    <PageContainer>
+    <PageContainer style={{
+      background: `linear-gradient(135deg, ${colors.backgroundStart} 0%, ${colors.backgroundEnd} 100%)`,
+      '--section-accent': colors.accent,
+      '--section-title': colors.title,
+      '--section-text': colors.text,
+      '--section-card-bg': colors.cardBackground,
+      '--section-button-bg': colors.buttonBackground,
+      '--section-button-text': colors.buttonText,
+    }}>
       <Hero>
         <h1>{content.about.title}</h1>
         <p className="subtitle">{content.about.subtitle}</p>
@@ -235,7 +244,14 @@ function About() {
 
         <FeaturesGrid>
           {content.about.features.map((feature, index) => (
-            <FeatureCard key={index}>
+            <FeatureCard
+              key={index}
+              style={{
+                '--feature-card-bg': feature.colors?.cardBackground,
+                '--feature-accent': feature.colors?.accent,
+                '--feature-text': feature.colors?.text,
+              }}
+            >
               <div className="icon-box">{icons[index] || <FiShield />}</div>
               <h3>{feature.title}</h3>
               <p>{feature.description}</p>

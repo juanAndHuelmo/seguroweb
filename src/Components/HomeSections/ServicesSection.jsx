@@ -13,7 +13,7 @@ const SectionWrapper = styled.section`
   align-items: center;
   padding: 80px 20px;
   gap: 40px;
-  background-color: var(--color-light);
+  background-color: ${props => props.$colors.background};
 `;
 
 const MainCard = styled.div`
@@ -54,6 +54,7 @@ const GlassContent = styled.div`
   z-index: 2;
 
   background: rgba(255,255,255,0.4);
+  background: ${props => props.$colors.cardBackground};
   backdrop-filter: blur(20px);
 
   width: 90%;
@@ -84,16 +85,18 @@ const GlassContent = styled.div`
   h2 {
     font-size: 2.4rem;
     margin-bottom: 12px;
+    color: ${props => props.$itemColors.title || props.$colors.title};
   }
 
   p {
     margin-bottom: 30px;
+    color: ${props => props.$itemColors.text || props.$colors.text};
   }
 `;
 
 const GreenButton = styled.button`
-  background: var(--color-primary);
-  color: white;
+  background: ${props => props.$itemColors.buttonBackground || props.$colors.buttonBackground};
+  color: ${props => props.$itemColors.buttonText || props.$colors.buttonText};
   border: none;
   padding: 16px 40px;
   border-radius: 20px;
@@ -110,7 +113,7 @@ const DarkDock = styled.div`
   display: flex;
   gap: 12px;
   padding: 14px;
-  background: var(--color-dark);
+  background: ${props => props.$colors.dockBackground};
   border-radius: 28px;
 `;
 
@@ -152,12 +155,15 @@ const getAssetUrl = (path) => {
 function ServicesSection({ openQuote }) {
   const { content } = useSiteContent();
   const services = content.services;
+  const colors = content.styles?.services || {};
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hoverIndex, setHoverIndex] = useState(null);
 
   const intervalRef = useRef(null);
 
   const activeIndex = hoverIndex !== null ? hoverIndex : currentIndex;
+  const activeService = services[activeIndex];
+  const activeColors = activeService?.colors || {};
 
   const nextService = useCallback(() => {
     setCurrentIndex(prev => (prev + 1) % services.length);
@@ -178,7 +184,7 @@ function ServicesSection({ openQuote }) {
   }, [startAutoPlay, stopAutoPlay]);
 
   return (
-    <SectionWrapper>
+    <SectionWrapper $colors={colors}>
       <MainCard
         onMouseEnter={stopAutoPlay}
         onMouseLeave={startAutoPlay}
@@ -194,20 +200,20 @@ function ServicesSection({ openQuote }) {
 
         <BackgroundOverlay />
 
-        <GlassContent>
+        <GlassContent $colors={colors} $itemColors={activeColors}>
           <div className="icon-container">
-            <img src={getAssetUrl(services[activeIndex].icon)} alt="" />
+            <img src={getAssetUrl(activeService.icon)} alt="" />
           </div>
-          <h2>{services[activeIndex].title}</h2>
-          <p>{services[activeIndex].description}</p>
-          <GreenButton onClick={openQuote}>
+          <h2>{activeService.title}</h2>
+          <p>{activeService.description}</p>
+          <GreenButton $colors={colors} $itemColors={activeColors} onClick={openQuote}>
             Solicitar Cotización
           </GreenButton>
         </GlassContent>
 
       </MainCard>
 
-      <DarkDock>
+      <DarkDock $colors={colors}>
         {services.map((s, i) => (
           <DockItem
             key={i}

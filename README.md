@@ -76,7 +76,7 @@ npm run build
 
 Si la app esta servida con subruta, tambien puede funcionar como:
 
-- `http://localhost:3000/seguroweb/admin`
+- `http://localhost:3000/admin`
 
 ## Variables De Entorno
 
@@ -141,4 +141,5 @@ Configurar las claves de EmailJS y reCAPTCHA antes de publicar.
 
 - [Deploy y produccion](docs/DEPLOYMENT.md)
 - [API admin](docs/API.md)
+- [Configuracion](docs/CONFIGURATION.md)
 - [Mantenimiento](docs/MAINTENANCE.md)

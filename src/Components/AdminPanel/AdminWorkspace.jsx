@@ -225,6 +225,46 @@ const Group = styled.div`
   margin-bottom: 14px;
 `;
 
+const AccordionGroup = styled(Group)`
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+`;
+
+const AccordionButton = styled.button`
+  width: 100%;
+  border: none;
+  background: ${props => (props.$open ? '#f3f4f6' : '#fff')};
+  color: #111827;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  text-align: left;
+
+  strong {
+    display: block;
+    font-size: 0.95rem;
+  }
+
+  span {
+    color: #6b7280;
+    display: block;
+    font-size: 0.74rem;
+    font-weight: 700;
+    margin-top: 3px;
+  }
+`;
+
+const AccordionContent = styled.div`
+  display: ${props => (props.$open ? 'grid' : 'none')};
+  gap: 12px;
+  padding: 14px;
+  border-top: 1px solid #e5e7eb;
+`;
+
 const GroupTitle = styled.h3`
   margin: 0;
   font-size: 0.95rem;
@@ -236,6 +276,12 @@ const Field = styled.label`
   color: #374151;
   font-size: 0.82rem;
   font-weight: 800;
+`;
+
+const FieldNote = styled.span`
+  color: #6b7280;
+  font-size: 0.74rem;
+  font-weight: 600;
 `;
 
 const Input = styled.input`
@@ -321,6 +367,32 @@ const Actions = styled.div`
   flex-wrap: wrap;
 `;
 
+const ColorEditor = styled.div`
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+`;
+
+const ColorRow = styled.div`
+  display: grid;
+  grid-template-columns: 42px 1fr 64px;
+  gap: 10px;
+  align-items: center;
+
+  input[type="color"] {
+    width: 42px;
+    height: 36px;
+    padding: 2px;
+  }
+
+  input[type="range"] {
+    width: 100%;
+  }
+`;
+
 const Button = styled.button`
   border: 1px solid ${props => (props.$danger ? '#fecaca' : '#d1d5db')};
   border-radius: 6px;
@@ -372,6 +444,7 @@ const sections = [
   { id: 'about', title: 'Nosotros', hint: 'Historia y diferenciales', page: 'about' },
   { id: 'brokers', title: 'Aseguradoras', hint: 'Logos y textos', page: 'brokers' },
   { id: 'footer', title: 'Contacto', hint: 'Teléfono, email y redes', page: 'contact' },
+  { id: 'forms', title: 'Formularios', hint: 'Colores de contacto y cotización', page: 'contact' },
   { id: 'whatsapp', title: 'WhatsApp', hint: 'Botón flotante', page: 'home' },
   { id: 'colors', title: 'Colores', hint: 'Paleta visual', page: 'home' },
 ];
@@ -456,6 +529,195 @@ function ImageInput({ label, value, onChange }) {
   );
 }
 
+const hexToRgb = (hex) => {
+  const normalized = hex?.replace('#', '');
+  if (!normalized || normalized.length !== 6) return { r: 0, g: 0, b: 0 };
+
+  return {
+    r: parseInt(normalized.slice(0, 2), 16),
+    g: parseInt(normalized.slice(2, 4), 16),
+    b: parseInt(normalized.slice(4, 6), 16),
+  };
+};
+
+const componentToHex = (component) => component.toString(16).padStart(2, '0');
+
+const rgbToHex = ({ r, g, b }) =>
+  `#${componentToHex(r)}${componentToHex(g)}${componentToHex(b)}`;
+
+const parseColorValue = (value = '#000000') => {
+  const rgbaMatch = value.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([0-9.]+))?\)$/);
+
+  if (rgbaMatch) {
+    const rgb = {
+      r: Number(rgbaMatch[1]),
+      g: Number(rgbaMatch[2]),
+      b: Number(rgbaMatch[3]),
+    };
+
+    return {
+      hex: rgbToHex(rgb),
+      opacity: rgbaMatch[4] === undefined ? 1 : Number(rgbaMatch[4]),
+    };
+  }
+
+  return {
+    hex: value.startsWith('#') ? value : '#000000',
+    opacity: 1,
+  };
+};
+
+const buildColorValue = (hex, opacity = 1) => {
+  if (opacity >= 1) return hex;
+  const { r, g, b } = hexToRgb(hex);
+  return `rgba(${r}, ${g}, ${b}, ${Number(opacity).toFixed(2)})`;
+};
+
+function ColorField({ label, value, onChange, opacity = false }) {
+  const parsed = parseColorValue(value);
+
+  return (
+    <Field>
+      {label}
+      <ColorEditor>
+        <ColorRow>
+          <Input
+            type="color"
+            value={parsed.hex}
+            onChange={event => onChange(buildColorValue(event.target.value, parsed.opacity))}
+          />
+          <Input
+            value={value || ''}
+            onChange={event => onChange(event.target.value)}
+            placeholder="#064e3b o rgba(6, 78, 59, 0.85)"
+          />
+          <span>{Math.round(parsed.opacity * 100)}%</span>
+        </ColorRow>
+        {opacity && (
+          <>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={Math.round(parsed.opacity * 100)}
+              onChange={event => onChange(buildColorValue(parsed.hex, Number(event.target.value) / 100))}
+            />
+            <FieldNote>Opacidad del color. 100% es sólido.</FieldNote>
+          </>
+        )}
+      </ColorEditor>
+    </Field>
+  );
+}
+
+function EditorPanel({ id, title, summary, openPanel, setOpenPanel, children }) {
+  const isOpen = openPanel === id;
+
+  return (
+    <AccordionGroup>
+      <AccordionButton type="button" $open={isOpen} onClick={() => setOpenPanel(isOpen ? '' : id)}>
+        <div>
+          <strong>{title}</strong>
+          {summary && <span>{summary}</span>}
+        </div>
+        <strong>{isOpen ? 'Cerrar' : 'Configurar'}</strong>
+      </AccordionButton>
+      <AccordionContent $open={isOpen}>
+        {children}
+      </AccordionContent>
+    </AccordionGroup>
+  );
+}
+
+function ColorControls({ colors = {}, fields, onChange }) {
+  return fields.map(field => (
+    <ColorField
+      key={field.key}
+      label={field.label}
+      value={colors[field.key] || field.fallback}
+      opacity={field.opacity}
+      onChange={value => onChange({ ...colors, [field.key]: value })}
+    />
+  ));
+}
+
+function ColorGroup({ title = 'Colores de esta sección', colors = {}, fields, onChange, panelId, summary, openPanel, setOpenPanel }) {
+  if (!panelId) {
+    return (
+      <Group>
+        <GroupTitle>{title}</GroupTitle>
+        <ColorControls colors={colors} fields={fields} onChange={onChange} />
+      </Group>
+    );
+  }
+
+  return (
+    <EditorPanel
+      id={panelId}
+      title={title}
+      summary={summary}
+      openPanel={openPanel}
+      setOpenPanel={setOpenPanel}
+    >
+      <ColorControls colors={colors} fields={fields} onChange={onChange} />
+    </EditorPanel>
+  );
+}
+
+const sectionColorFields = {
+  services: [
+    { key: 'background', label: 'Fondo de sección', fallback: '#f5f5f7', opacity: true },
+    { key: 'cardBackground', label: 'Fondo del panel', fallback: '#ffffff', opacity: true },
+    { key: 'title', label: 'Título', fallback: '#1d1d1f' },
+    { key: 'text', label: 'Texto', fallback: '#1d1d1f' },
+    { key: 'buttonBackground', label: 'Botón', fallback: '#064e3b', opacity: true },
+    { key: 'buttonText', label: 'Texto botón', fallback: '#ffffff' },
+    { key: 'dockBackground', label: 'Dock', fallback: '#1d1d1f', opacity: true },
+  ],
+  whyUs: [
+    { key: 'background', label: 'Fondo de sección', fallback: '#f5f5f7', opacity: true },
+    { key: 'title', label: 'Título', fallback: '#1d1d1f' },
+    { key: 'itemBackground', label: 'Fondo beneficio', fallback: '#ffffff', opacity: true },
+    { key: 'itemText', label: 'Texto beneficio', fallback: '#1d1d1f' },
+  ],
+  about: [
+    { key: 'backgroundStart', label: 'Fondo inicio', fallback: '#064e3b', opacity: true },
+    { key: 'backgroundEnd', label: 'Fondo fin', fallback: '#2d5016', opacity: true },
+    { key: 'title', label: 'Título', fallback: '#ffffff' },
+    { key: 'text', label: 'Texto', fallback: '#d1d5db' },
+    { key: 'accent', label: 'Acento', fallback: '#10b981' },
+    { key: 'cardBackground', label: 'Fondo tarjeta', fallback: '#ffffff', opacity: true },
+    { key: 'buttonBackground', label: 'Botón', fallback: '#ffffff', opacity: true },
+    { key: 'buttonText', label: 'Texto botón', fallback: '#064e3b' },
+  ],
+  brokers: [
+    { key: 'backgroundStart', label: 'Fondo inicio', fallback: '#064e3b', opacity: true },
+    { key: 'backgroundEnd', label: 'Fondo fin', fallback: '#2d5016', opacity: true },
+    { key: 'title', label: 'Título', fallback: '#ffffff' },
+    { key: 'subtitle', label: 'Subtítulo', fallback: '#10b981' },
+    { key: 'cardBackground', label: 'Fondo tarjeta', fallback: '#ffffff', opacity: true },
+    { key: 'phone', label: 'Teléfono', fallback: '#064e3b' },
+  ],
+  footer: [
+    { key: 'background', label: 'Fondo', fallback: '#ffffff', opacity: true },
+    { key: 'title', label: 'Títulos', fallback: '#064e3b' },
+    { key: 'text', label: 'Texto', fallback: '#1d1d1f' },
+    { key: 'link', label: 'Links e íconos', fallback: '#064e3b' },
+    { key: 'socialBackground', label: 'Fondo redes', fallback: '#f5f5f7', opacity: true },
+  ],
+  whatsapp: [
+    { key: 'background', label: 'Fondo', fallback: '#25d366', opacity: true },
+    { key: 'icon', label: 'Ícono', fallback: '#ffffff' },
+  ],
+  forms: [
+    { key: 'background', label: 'Fondo', fallback: '#f2f2f7', opacity: true },
+    { key: 'wrapper', label: 'Panel', fallback: '#ffffff', opacity: true },
+    { key: 'title', label: 'Título', fallback: '#1d1d1f' },
+    { key: 'buttonBackground', label: 'Botón', fallback: '#064e3b', opacity: true },
+    { key: 'buttonText', label: 'Texto botón', fallback: '#ffffff' },
+  ],
+};
+
 function AdminWorkspace() {
   const { content, updateContent, resetContent } = useSiteContent();
   const { theme, updateColor, resetColors, customThemes } = useContext(ThemeContext);
@@ -469,6 +731,7 @@ function AdminWorkspace() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
+  const [openPanel, setOpenPanel] = useState('');
 
   useEffect(() => {
     const verifySession = async () => {
@@ -505,6 +768,7 @@ function AdminWorkspace() {
   const selectSection = (section) => {
     setActiveSection(section.id);
     setPreviewPage(section.page);
+    setOpenPanel('');
   };
 
   const markDirty = () => {
@@ -562,6 +826,14 @@ function AdminWorkspace() {
   const updateObject = (key, patch) => {
     markDirty();
     updateContent(key, { ...content[key], ...patch });
+  };
+
+  const updateSectionStyle = (sectionKey, colors) => {
+    markDirty();
+    updateContent('styles', {
+      ...content.styles,
+      [sectionKey]: colors,
+    });
   };
 
   const updateService = (index, patch) => {
@@ -636,11 +908,36 @@ function AdminWorkspace() {
     if (activeSection === 'services') {
       return (
         <>
+          <ColorGroup
+            panelId="services-colors"
+            title="Colores generales de Servicios"
+            summary="Fondo, panel, textos, botón y dock"
+            openPanel={openPanel}
+            setOpenPanel={setOpenPanel}
+            colors={content.styles?.services}
+            fields={sectionColorFields.services}
+            onChange={colors => updateSectionStyle('services', colors)}
+          />
           {content.services.map((service, index) => (
             <Group key={`${service.title}-${index}`}>
               <GroupTitle>{service.title || `Servicio ${index + 1}`}</GroupTitle>
               <Field>Título<Input value={service.title} onChange={event => updateService(index, { title: event.target.value })} /></Field>
               <Field>Descripción<Textarea value={service.description} onChange={event => updateService(index, { description: event.target.value })} /></Field>
+              <ColorGroup
+                panelId={`service-${index}-colors`}
+                title="Colores de este servicio"
+                summary={service.title || `Servicio ${index + 1}`}
+                openPanel={openPanel}
+                setOpenPanel={setOpenPanel}
+                colors={service.colors || {}}
+                fields={[
+                  { key: 'title', label: 'Título', fallback: content.styles?.services?.title },
+                  { key: 'text', label: 'Texto', fallback: content.styles?.services?.text },
+                  { key: 'buttonBackground', label: 'Botón', fallback: content.styles?.services?.buttonBackground, opacity: true },
+                  { key: 'buttonText', label: 'Texto botón', fallback: content.styles?.services?.buttonText },
+                ]}
+                onChange={colors => updateService(index, { colors })}
+              />
               <ImageInput label="Ícono" value={service.icon} onChange={value => updateService(index, { icon: value })} />
               <ImageInput label="Imagen de fondo" value={service.imagen} onChange={value => updateService(index, { imagen: value })} />
             </Group>
@@ -651,16 +948,38 @@ function AdminWorkspace() {
 
     if (activeSection === 'whyUs') {
       return (
-        <Group>
-          <Field>Título<Input value={content.whyUs.title} onChange={event => updateObject('whyUs', { title: event.target.value })} /></Field>
-          <Field>Beneficios<Textarea value={toLines(content.whyUs.items)} onChange={event => updateObject('whyUs', { items: fromLines(event.target.value) })} /></Field>
-        </Group>
+        <>
+          <ColorGroup
+            panelId="whyUs-colors"
+            title="Colores de Beneficios"
+            summary="Fondo, título y tarjetas"
+            openPanel={openPanel}
+            setOpenPanel={setOpenPanel}
+            colors={content.styles?.whyUs}
+            fields={sectionColorFields.whyUs}
+            onChange={colors => updateSectionStyle('whyUs', colors)}
+          />
+          <Group>
+            <Field>Título<Input value={content.whyUs.title} onChange={event => updateObject('whyUs', { title: event.target.value })} /></Field>
+            <Field>Beneficios<Textarea value={toLines(content.whyUs.items)} onChange={event => updateObject('whyUs', { items: fromLines(event.target.value) })} /></Field>
+          </Group>
+        </>
       );
     }
 
     if (activeSection === 'about') {
       return (
         <>
+          <ColorGroup
+            panelId="about-colors"
+            title="Colores generales de Nosotros"
+            summary="Fondo, texto, acento, tarjetas y botón"
+            openPanel={openPanel}
+            setOpenPanel={setOpenPanel}
+            colors={content.styles?.about}
+            fields={sectionColorFields.about}
+            onChange={colors => updateSectionStyle('about', colors)}
+          />
           <Group>
             <Field>Título<Input value={content.about.title} onChange={event => updateObject('about', { title: event.target.value })} /></Field>
             <Field>Subtítulo<Input value={content.about.subtitle} onChange={event => updateObject('about', { subtitle: event.target.value })} /></Field>
@@ -677,6 +996,22 @@ function AdminWorkspace() {
               <Field>Descripción<Textarea value={feature.description} onChange={event => updateObject('about', {
                 features: content.about.features.map((item, itemIndex) => itemIndex === index ? { ...item, description: event.target.value } : item),
               })} /></Field>
+              <ColorGroup
+                panelId={`feature-${index}-colors`}
+                title="Colores de este diferencial"
+                summary={feature.title || `Diferencial ${index + 1}`}
+                openPanel={openPanel}
+                setOpenPanel={setOpenPanel}
+                colors={feature.colors || {}}
+                fields={[
+                  { key: 'cardBackground', label: 'Fondo tarjeta', fallback: content.styles?.about?.cardBackground, opacity: true },
+                  { key: 'accent', label: 'Acento', fallback: content.styles?.about?.accent },
+                  { key: 'text', label: 'Texto', fallback: content.styles?.about?.text },
+                ]}
+                onChange={colors => updateObject('about', {
+                  features: content.about.features.map((item, itemIndex) => itemIndex === index ? { ...item, colors } : item),
+                })}
+              />
             </Group>
           ))}
         </>
@@ -686,6 +1021,16 @@ function AdminWorkspace() {
     if (activeSection === 'brokers') {
       return (
         <>
+          <ColorGroup
+            panelId="brokers-colors"
+            title="Colores generales de Aseguradoras"
+            summary="Fondo, títulos, tarjetas y teléfonos"
+            openPanel={openPanel}
+            setOpenPanel={setOpenPanel}
+            colors={content.styles?.brokers}
+            fields={sectionColorFields.brokers}
+            onChange={colors => updateSectionStyle('brokers', colors)}
+          />
           <Group>
             <Field>Título<Input value={content.brokers.title} onChange={event => updateObject('brokers', { title: event.target.value })} /></Field>
             <Field>Subtítulo<Textarea value={content.brokers.subtitle} onChange={event => updateObject('brokers', { subtitle: event.target.value })} /></Field>
@@ -694,6 +1039,21 @@ function AdminWorkspace() {
             <Group key={`${broker.name}-${index}`}>
               <GroupTitle>{broker.name || `Aseguradora ${index + 1}`}</GroupTitle>
               <Field>Nombre<Input value={broker.name} onChange={event => updateBroker(index, { name: event.target.value })} /></Field>
+              <Field>Teléfono siniestros<Input value={broker.claimsPhone || ''} onChange={event => updateBroker(index, { claimsPhone: event.target.value })} /></Field>
+              <Field>Detalle siniestros<Input value={broker.claimsDetail || ''} onChange={event => updateBroker(index, { claimsDetail: event.target.value })} /></Field>
+              <ColorGroup
+                panelId={`broker-${index}-colors`}
+                title="Colores de esta aseguradora"
+                summary={broker.name || `Aseguradora ${index + 1}`}
+                openPanel={openPanel}
+                setOpenPanel={setOpenPanel}
+                colors={broker.colors || {}}
+                fields={[
+                  { key: 'cardBackground', label: 'Fondo tarjeta', fallback: content.styles?.brokers?.cardBackground, opacity: true },
+                  { key: 'phone', label: 'Teléfono', fallback: content.styles?.brokers?.phone },
+                ]}
+                onChange={colors => updateBroker(index, { colors })}
+              />
               <ImageInput label="Logo" value={broker.image} onChange={value => updateBroker(index, { image: value })} />
             </Group>
           ))}
@@ -703,24 +1063,63 @@ function AdminWorkspace() {
 
     if (activeSection === 'footer') {
       return (
-        <Group>
-          <Field>Email<Input value={content.footer.email} onChange={event => updateObject('footer', { email: event.target.value })} /></Field>
-          <Field>Teléfono<Input value={content.footer.phone} onChange={event => updateObject('footer', { phone: event.target.value })} /></Field>
-          <Field>Horario<Input value={content.footer.schedule} onChange={event => updateObject('footer', { schedule: event.target.value })} /></Field>
-          <Field>Texto del footer<Textarea value={content.footer.about} onChange={event => updateObject('footer', { about: event.target.value })} /></Field>
-          <Field>Instagram<Input value={content.footer.instagram} onChange={event => updateObject('footer', { instagram: event.target.value })} /></Field>
-          <Field>Facebook<Input value={content.footer.facebook} onChange={event => updateObject('footer', { facebook: event.target.value })} /></Field>
-          <Field>LinkedIn<Input value={content.footer.linkedin} onChange={event => updateObject('footer', { linkedin: event.target.value })} /></Field>
-        </Group>
+        <>
+          <ColorGroup
+            panelId="footer-colors"
+            title="Colores de Contacto/Footer"
+            summary="Fondo, títulos, texto, links y redes"
+            openPanel={openPanel}
+            setOpenPanel={setOpenPanel}
+            colors={content.styles?.footer}
+            fields={sectionColorFields.footer}
+            onChange={colors => updateSectionStyle('footer', colors)}
+          />
+          <Group>
+            <Field>Email<Input value={content.footer.email} onChange={event => updateObject('footer', { email: event.target.value })} /></Field>
+            <Field>Teléfono<Input value={content.footer.phone} onChange={event => updateObject('footer', { phone: event.target.value })} /></Field>
+            <Field>Horario<Input value={content.footer.schedule} onChange={event => updateObject('footer', { schedule: event.target.value })} /></Field>
+            <Field>Texto del footer<Textarea value={content.footer.about} onChange={event => updateObject('footer', { about: event.target.value })} /></Field>
+            <Field>Instagram<Input value={content.footer.instagram} onChange={event => updateObject('footer', { instagram: event.target.value })} /></Field>
+            <Field>Facebook<Input value={content.footer.facebook} onChange={event => updateObject('footer', { facebook: event.target.value })} /></Field>
+            <Field>LinkedIn<Input value={content.footer.linkedin} onChange={event => updateObject('footer', { linkedin: event.target.value })} /></Field>
+          </Group>
+        </>
       );
     }
 
     if (activeSection === 'whatsapp') {
       return (
-        <Group>
-          <Field>Teléfono<Input value={content.whatsapp.phone} onChange={event => updateObject('whatsapp', { phone: event.target.value })} /></Field>
-          <Field>Mensaje inicial<Textarea value={content.whatsapp.message} onChange={event => updateObject('whatsapp', { message: event.target.value })} /></Field>
-        </Group>
+        <>
+          <ColorGroup
+            panelId="whatsapp-colors"
+            title="Colores del botón de WhatsApp"
+            summary="Fondo e ícono"
+            openPanel={openPanel}
+            setOpenPanel={setOpenPanel}
+            colors={content.styles?.whatsapp}
+            fields={sectionColorFields.whatsapp}
+            onChange={colors => updateSectionStyle('whatsapp', colors)}
+          />
+          <Group>
+            <Field>Teléfono<Input value={content.whatsapp.phone} onChange={event => updateObject('whatsapp', { phone: event.target.value })} /></Field>
+            <Field>Mensaje inicial<Textarea value={content.whatsapp.message} onChange={event => updateObject('whatsapp', { message: event.target.value })} /></Field>
+          </Group>
+        </>
+      );
+    }
+
+    if (activeSection === 'forms') {
+      return (
+        <ColorGroup
+          panelId="forms-colors"
+          title="Colores de Formularios"
+          summary="Fondo, panel, título y botón"
+          openPanel={openPanel}
+          setOpenPanel={setOpenPanel}
+          colors={content.styles?.forms}
+          fields={sectionColorFields.forms}
+          onChange={colors => updateSectionStyle('forms', colors)}
+        />
       );
     }
 

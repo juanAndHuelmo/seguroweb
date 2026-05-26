@@ -2,10 +2,14 @@ import { useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import emailjs from "@emailjs/browser";
 import "../../styles/QuotationForm.css";
+import { APP_CONFIG } from "../../config/appConfig";
+import { useSiteContent } from "../../Hooks/useSiteContent";
 
-emailjs.init("FWhla7meyPyV00HZZ");
+emailjs.init(APP_CONFIG.integrations.emailjs.publicKey);
 
 function Contact({ onClose }) {
+  const { content } = useSiteContent();
+  const colors = content.styles?.forms || {};
   const [formData, setFormData] = useState({
     name: "",
     lastName: "",
@@ -52,19 +56,19 @@ function Contact({ onClose }) {
   const validateForm = () => {
     let newErrors = {};
 
-    if (!formData.name.trim()) newErrors.name = "Nombre requerido";
-    if (!formData.lastName.trim()) newErrors.lastName = "Apellido requerido";
-    if (!formData.phone.trim()) newErrors.phone = "Teléfono requerido";
+    if (!formData.name.trim()) newErrors.name = APP_CONFIG.errors.requiredName;
+    if (!formData.lastName.trim()) newErrors.lastName = APP_CONFIG.errors.requiredLastName;
+    if (!formData.phone.trim()) newErrors.phone = APP_CONFIG.errors.requiredPhone;
 
     if (!formData.email.trim()) {
-      newErrors.email = "Email requerido";
+      newErrors.email = APP_CONFIG.errors.requiredEmail;
     } else if (!validateEmail(formData.email)) {
-      newErrors.email = "Email inválido";
+      newErrors.email = APP_CONFIG.errors.invalidEmail;
     }
 
-    if (!formData.queryType) newErrors.queryType = "Selecciona una opción";
-    if (!formData.message.trim()) newErrors.message = "Escribe tu consulta";
-    if (!captchaValue) newErrors.captcha = "Completa el CAPTCHA";
+    if (!formData.queryType) newErrors.queryType = APP_CONFIG.errors.requiredQueryType;
+    if (!formData.message.trim()) newErrors.message = APP_CONFIG.errors.requiredMessage;
+    if (!captchaValue) newErrors.captcha = APP_CONFIG.errors.requiredCaptcha;
 
     setErrors(newErrors);
 
@@ -81,14 +85,19 @@ function Contact({ onClose }) {
 
     try {
       await emailjs.send(
-        "service_qsf0m5b",
-        "template_qjor7vt",
+        APP_CONFIG.integrations.emailjs.serviceId,
+        APP_CONFIG.integrations.emailjs.contactTemplateId,
         {
+          to_email: APP_CONFIG.integrations.emailjs.toEmail,
+          reply_to: formData.email,
+          sender_email: APP_CONFIG.integrations.emailjs.fromEmail,
+          sender_name: APP_CONFIG.integrations.emailjs.fromName,
           from_name: `${formData.name} ${formData.lastName}`,
           from_email: formData.email,
           phone: formData.phone,
           query_type: formData.queryType,
           message: formData.message,
+          "g-recaptcha-response": captchaValue,
         }
       );
 
@@ -110,14 +119,23 @@ function Contact({ onClose }) {
 
       setCaptchaValue(null);
     } catch (error) {
-      setErrorMsg("Error al enviar el mensaje.");
+      setErrorMsg(APP_CONFIG.errors.contactSendFailed);
     }
 
     setLoading(false);
   };
 
   return (
-    <div className="quotation-form-container">
+    <div
+      className="quotation-form-container"
+      style={{
+        '--form-bg': colors.background,
+        '--form-wrapper': colors.wrapper,
+        '--form-title': colors.title,
+        '--form-button-bg': colors.buttonBackground,
+        '--form-button-text': colors.buttonText,
+      }}
+    >
       <div className="form-wrapper">
         <header className="form-header">
           <h2>Contacto</h2>
@@ -126,13 +144,13 @@ function Contact({ onClose }) {
 
         {submitted && (
           <div className="success-message fade-in">
-            ✅ Mensaje enviado correctamente.
+            Mensaje enviado correctamente.
           </div>
         )}
 
         {errorMsg && (
           <div className="error-message fade-in">
-            ❌ {errorMsg}
+            {errorMsg}
           </div>
         )}
 
@@ -141,39 +159,55 @@ function Contact({ onClose }) {
             <legend>Datos Personales</legend>
 
             <div className="form-row">
-              <input
-                type="text"
-                name="name"
-                placeholder="Nombre"
-                value={formData.name}
-                onChange={handleChange}
-              />
+              <div className="form-field">
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Nombre"
+                  value={formData.name}
+                  onChange={handleChange}
+                  aria-invalid={Boolean(errors.name)}
+                />
+                {errors.name && <small className="field-error">{errors.name}</small>}
+              </div>
 
-              <input
-                type="text"
-                name="lastName"
-                placeholder="Apellido"
-                value={formData.lastName}
-                onChange={handleChange}
-              />
+              <div className="form-field">
+                <input
+                  type="text"
+                  name="lastName"
+                  placeholder="Apellido"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  aria-invalid={Boolean(errors.lastName)}
+                />
+                {errors.lastName && <small className="field-error">{errors.lastName}</small>}
+              </div>
             </div>
 
             <div className="form-row">
-              <input
-                type="tel"
-                name="phone"
-                placeholder="Celular"
-                value={formData.phone}
-                onChange={handleChange}
-              />
+              <div className="form-field">
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="Celular"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  aria-invalid={Boolean(errors.phone)}
+                />
+                {errors.phone && <small className="field-error">{errors.phone}</small>}
+              </div>
 
-              <input
-                type="email"
-                name="email"
-                placeholder="Email"
-                value={formData.email}
-                onChange={handleChange}
-              />
+              <div className="form-field">
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  aria-invalid={Boolean(errors.email)}
+                />
+                {errors.email && <small className="field-error">{errors.email}</small>}
+              </div>
             </div>
           </fieldset>
 
@@ -185,6 +219,7 @@ function Contact({ onClose }) {
                 name="queryType"
                 value={formData.queryType}
                 onChange={handleChange}
+                aria-invalid={Boolean(errors.queryType)}
               >
                 <option value="">Tipo de consulta</option>
                 <option value="cotizacion">Cotización</option>
@@ -192,6 +227,7 @@ function Contact({ onClose }) {
                 <option value="sugerencia">Sugerencia</option>
                 <option value="otro">Otro</option>
               </select>
+              {errors.queryType && <small className="field-error">{errors.queryType}</small>}
             </div>
 
             <textarea
@@ -200,21 +236,23 @@ function Contact({ onClose }) {
               placeholder="Escribe tu mensaje..."
               value={formData.message}
               onChange={handleChange}
+              aria-invalid={Boolean(errors.message)}
             />
+            {errors.message && <small className="field-error">{errors.message}</small>}
           </fieldset>
 
-          <div style={{ marginBottom: "1rem" }}>
+          <div className="captcha-field">
             <ReCAPTCHA
-              sitekey="6LcYososAAAAANiGCDq90Exc3GTVzzoDgF2CnBSE"
+              sitekey={APP_CONFIG.integrations.recaptcha.siteKey}
               onChange={handleCaptchaChange}
             />
             {errors.captcha && (
-              <small style={{ color: "red" }}>{errors.captcha}</small>
+              <small className="field-error">{errors.captcha}</small>
             )}
           </div>
 
           <button type="submit" className="submit-btn" disabled={loading}>
-            {loading ? "⏳ Enviando..." : "Enviar Consulta"}
+            {loading ? "Enviando..." : "Enviar Consulta"}
           </button>
         </form>
       </div>

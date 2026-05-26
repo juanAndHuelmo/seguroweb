@@ -6,6 +6,7 @@ import ServicesSection from '../HomeSections/ServicesSection';
 import WhyUsSection from '../HomeSections/WhyUsSection';
 import Brokers from './Brokers';
 import QuotationForm from '../Forms/QuotationForm';
+import { useSiteContent } from '../../Hooks/useSiteContent';
 
 // --- Animaciones ---
 const fadeIn = keyframes`
@@ -47,7 +48,7 @@ const HomePageWrapper = styled.div`
 
 // Contenedor especial para resaltar secciones con el verde que te gusta
 const HighlightedSection = styled.div`
-  background: linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%);
+  background: linear-gradient(135deg, ${props => props.$colors.backgroundStart} 0%, ${props => props.$colors.backgroundEnd} 100%);
   color: white;
   border-radius: 40px; // Bordes muy redondeados tipo iPhone
   margin: 20px;
@@ -106,7 +107,9 @@ const CloseButton = styled.button`
 `;
 
 function Home() {
+  const { content } = useSiteContent();
   const [showQuotationForm, setShowQuotationForm] = useState(false);
+  const brokerColors = content.styles?.brokers || {};
 
   const toggleModal = () => setShowQuotationForm(!showQuotationForm);
 
@@ -121,7 +124,7 @@ function Home() {
       <ServicesSection openQuote={toggleModal} />
       
       {/* 2. Sección de Brokers o Beneficios en VERDE (Resalte) */}
-      <HighlightedSection>
+      <HighlightedSection $colors={brokerColors}>
         <Brokers />
       </HighlightedSection>
 

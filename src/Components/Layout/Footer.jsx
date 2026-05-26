@@ -6,9 +6,19 @@ import "../styles/Footer.css";
 export default function Footer() {
     const { content } = useSiteContent();
     const { footer } = content;
+    const colors = content.styles?.footer || {};
 
     return (
-        <footer className="footer">
+        <footer
+            className="footer"
+            style={{
+                '--footer-bg': colors.background,
+                '--footer-title': colors.title,
+                '--footer-text': colors.text,
+                '--footer-link': colors.link,
+                '--footer-social-bg': colors.socialBackground,
+            }}
+        >
             <div className="footer-container">
                 <div className="footer-section">
                     <h3>Contacto</h3>

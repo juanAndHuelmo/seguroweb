@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import emailjs from '@emailjs/browser';
 import styled, { keyframes } from 'styled-components';
 import ReCAPTCHA from 'react-google-recaptcha';
+import { APP_CONFIG } from '../../config/appConfig';
+import { useSiteContent } from '../../Hooks/useSiteContent';
 
-emailjs.init('FWhla7meyPyV00HZZ');
+emailjs.init(APP_CONFIG.integrations.emailjs.publicKey);
 
 /* ===== ANIMACIÓN ===== */
 const fadeIn = keyframes`
@@ -24,9 +26,9 @@ const Overlay = styled.div`
 
 const Container = styled.div`
   width:100%;
-  max-width:720px;
-  background:white;
-  border-radius:24px;
+  max-width:760px;
+  background:${props => props.$colors.wrapper};
+  border-radius:22px;
   display:flex;
   flex-direction:column;
   max-height:92vh;
@@ -35,9 +37,13 @@ const Container = styled.div`
 `;
 
 const Content = styled.div`
-  padding:20px;
+  padding:28px;
   overflow-y:auto;
   flex:1;
+
+  @media(max-width:600px){
+    padding:22px 18px;
+  }
 `;
 
 const Footer = styled.div`
@@ -51,22 +57,37 @@ const Footer = styled.div`
 /* ===== UI ===== */
 const Tabs = styled.div`
   display:flex;
+  justify-content:center;
   gap:10px;
   overflow-x:auto;
-  margin-bottom:20px;
+  width:100%;
+  padding:4px 2px 12px;
+  margin:0 auto 22px;
+  scrollbar-width:none;
   &::-webkit-scrollbar { display:none; }
+
+  @media(max-width:620px){
+    justify-content:flex-start;
+    padding-inline:2px;
+  }
 `;
 
 const Tab = styled.button`
-  min-width:85px;
+  flex:0 0 92px;
   border-radius:12px;
   border:2px solid ${p=>p.$active?'#064e3b':'transparent'};
   background:${p=>p.$active?'#ecfdf5':'#fff'};
-  padding:6px;
+  padding:8px 6px;
   cursor:pointer;
   display:flex;
   flex-direction:column;
   align-items:center;
+  box-shadow:${p=>p.$active?'0 8px 18px rgba(6,78,59,0.12)':'0 1px 8px rgba(15,23,42,0.06)'};
+  transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+
+  &:hover{
+    transform:translateY(-2px);
+  }
 
   img{
     width:60px;
@@ -79,7 +100,16 @@ const Tab = styled.button`
   span{
     font-size:12px;
     margin-top:4px;
+    line-height:1.2;
+    text-align:center;
   }
+`;
+
+const Title = styled.h2`
+  margin:0 0 18px;
+  color:${props => props.$colors.title};
+  font-size:clamp(1.55rem, 2.4vw, 2rem);
+  text-align:center;
 `;
 
 const Grid = styled.div`
@@ -109,8 +139,8 @@ const Button = styled.button`
   padding:16px;
   border:none;
   border-radius:12px;
-  background:${p=>p.disabled?'#ccc':'#064e3b'};
-  color:white;
+  background:${p=>p.disabled?'#ccc':p.$colors.buttonBackground};
+  color:${p=>p.$colors.buttonText};
   font-weight:600;
 `;
 
@@ -132,8 +162,16 @@ const FormMessage = styled.p`
   text-align: center;
 `;
 
+const PersonalData = styled.div`
+  display:grid;
+  gap:10px;
+  margin-top:20px;
+`;
+
 /* ===== COMPONENT ===== */
 export default function QuotationForm({onClose}){
+  const { content } = useSiteContent();
+  const colors = content.styles?.forms || {};
 
   useEffect(()=>{
     document.body.style.overflow='hidden';
@@ -224,12 +262,12 @@ export default function QuotationForm({onClose}){
     if(loading) return;
 
     if(!isValid()){
-      alert('Completá los datos requeridos');
+      alert(APP_CONFIG.errors.quoteIncomplete);
       return;
     }
 
     if(!captchaValue){
-      setSubmitMessage('Completá el CAPTCHA antes de enviar.');
+      setSubmitMessage(APP_CONFIG.errors.quoteCaptcha);
       return;
     }
 
@@ -243,18 +281,22 @@ export default function QuotationForm({onClose}){
       setLoading(true);
       setSubmitMessage('');
 
-      await emailjs.send('service_qsf0m5b','template_hw7rel8',{
+      await emailjs.send(APP_CONFIG.integrations.emailjs.serviceId, APP_CONFIG.integrations.emailjs.quoteTemplateId, {
+        to_email: APP_CONFIG.integrations.emailjs.toEmail,
+        reply_to: data.email,
+        sender_email: APP_CONFIG.integrations.emailjs.fromEmail,
+        sender_name: APP_CONFIG.integrations.emailjs.fromName,
         from_name:data.fullName,
         from_email:data.email,
         'g-recaptcha-response': captchaValue,
         message:JSON.stringify(data,null,2)
       });
 
-      setSubmitMessage('Solicitud enviada correctamente.');
+      setSubmitMessage(APP_CONFIG.errors.quoteSuccess);
       onClose && onClose();
 
     }catch{
-      setSubmitMessage('Error al enviar. Intentá nuevamente.');
+      setSubmitMessage(APP_CONFIG.errors.quoteSendFailed);
     }finally{
       setLoading(false);
     }
@@ -265,11 +307,11 @@ export default function QuotationForm({onClose}){
 
   return(
     <Overlay onClick={onClose}>
-      <Container onClick={e=>e.stopPropagation()}>
+      <Container $colors={colors} onClick={e=>e.stopPropagation()}>
 
         <Content>
 
-          <h2>Cotización</h2>
+          <Title $colors={colors}>Cotización</Title>
 
           <Tabs>
             {types.map(t=>(
@@ -391,18 +433,18 @@ export default function QuotationForm({onClose}){
           )}
 
           {/* DATOS PERSONALES */}
-          <div style={{marginTop:20}}>
+          <PersonalData>
             <Input name="fullName" value={c.fullName} placeholder="Nombre completo" onChange={handleChange}/>
             <Grid>
               <Input name="email" value={c.email} placeholder="Email" onChange={handleChange}/>
               <Input name="phone" value={c.phone} placeholder="Celular" onChange={handleChange}/>
               <Input name="ci" value={c.ci} placeholder="Cédula" onChange={handleChange}/>
             </Grid>
-          </div>
+          </PersonalData>
 
           <CaptchaWrap>
             <ReCAPTCHA
-              sitekey="6LcYososAAAAANiGCDq90Exc3GTVzzoDgF2CnBSE"
+              sitekey={APP_CONFIG.integrations.recaptcha.siteKey}
               onChange={setCaptchaValue}
             />
           </CaptchaWrap>
@@ -416,7 +458,7 @@ export default function QuotationForm({onClose}){
         </Content>
 
         <Footer>
-          <Button onClick={handleSubmit} disabled={!isValid() || !captchaValue || loading}>
+          <Button $colors={colors} onClick={handleSubmit} disabled={!isValid() || !captchaValue || loading}>
             {loading ? 'Enviando...' : 'Enviar solicitud'}
           </Button>
         </Footer>

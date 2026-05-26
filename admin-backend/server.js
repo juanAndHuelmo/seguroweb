@@ -13,6 +13,14 @@ const SETTINGS_PATH = process.env.SETTINGS_PATH || path.join(DATA_DIR, 'site-set
 const UPLOADS_DIR = process.env.UPLOADS_DIR || path.join(DATA_DIR, 'uploads');
 const MAX_UPLOAD_BYTES = Number(process.env.MAX_UPLOAD_BYTES || 5 * 1024 * 1024);
 const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml']);
+const DEFAULT_ALLOWED_ORIGINS = [
+  'https://huelmoseguros.com.uy',
+  'https://www.huelmoseguros.com.uy',
+];
+const ALLOWED_ORIGINS = (process.env.ADMIN_ALLOWED_ORIGIN || process.env.ADMIN_ALLOWED_ORIGINS || DEFAULT_ALLOWED_ORIGINS.join(','))
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 const initialSiteData = {
   pages: [
@@ -140,8 +148,14 @@ function saveSettings(settings) {
 }
 
 function sendJson(response, statusCode, data) {
+  const origin = response.req?.headers.origin;
+  const allowOrigin = ALLOWED_ORIGINS.includes('*') || !origin
+    ? (ALLOWED_ORIGINS.includes('*') ? '*' : ALLOWED_ORIGINS[0])
+    : (ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]);
+
   response.writeHead(statusCode, {
-    'Access-Control-Allow-Origin': process.env.ADMIN_ALLOWED_ORIGIN || '*',
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Vary': 'Origin',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PATCH, PUT, DELETE',
     'Content-Type': 'application/json',
@@ -165,8 +179,14 @@ function sendFile(response, filePath) {
     return;
   }
 
+  const origin = response.req?.headers.origin;
+  const allowOrigin = ALLOWED_ORIGINS.includes('*') || !origin
+    ? (ALLOWED_ORIGINS.includes('*') ? '*' : ALLOWED_ORIGINS[0])
+    : (ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]);
+
   response.writeHead(200, {
-    'Access-Control-Allow-Origin': process.env.ADMIN_ALLOWED_ORIGIN || '*',
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Vary': 'Origin',
     'Content-Type': contentTypes[extension] || 'application/octet-stream',
     'Cache-Control': 'public, max-age=31536000, immutable',
   });
@@ -314,6 +334,15 @@ const server = http.createServer(async (request, response) => {
     const requestedFile = decodeURIComponent(request.url.replace('/uploads/', ''));
     const safeFile = path.basename(requestedFile);
     sendFile(response, path.join(UPLOADS_DIR, safeFile));
+    return;
+  }
+
+  if ((request.url === '/' || request.url === '/api/health') && request.method === 'GET') {
+    sendJson(response, 200, {
+      ok: true,
+      service: 'huelmo-seguros-api',
+      environment: process.env.NODE_ENV || 'development',
+    });
     return;
   }
 
@@ -539,5 +568,5 @@ const server = http.createServer(async (request, response) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Admin backend running on http://localhost:${PORT}`);
+  console.log(`Admin backend running on port ${PORT}`);
 });
