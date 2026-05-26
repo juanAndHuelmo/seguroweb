@@ -20,6 +20,7 @@
     "start": "react-scripts start",
     "admin": "node admin-backend/server.js",
     "build": "react-scripts build",
+    "build:plesk": "node scripts/build-plesk.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
