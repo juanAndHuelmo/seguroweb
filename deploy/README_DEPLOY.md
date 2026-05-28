@@ -4,9 +4,9 @@ Este proyecto tiene el frontend Create React App en la raiz del repositorio actu
 
 ## URLs actuales
 
-- Frontend prueba: `https://musing-hopper.161-0-125-69.plesk.page`
-- API prueba: `https://apin.huelmolabs.com.uy`
-- API health: `https://apin.huelmolabs.com.uy/api/health`
+- Frontend: `https://huelmoseguros.com.uy`
+- API: `https://api.huelmoseguros.com.uy`
+- API health: `https://api.huelmoseguros.com.uy/api/health`
 
 ## Frontend por ZIP
 
@@ -19,7 +19,7 @@ cp .env.production.example .env.production
 2. Editar `.env.production`:
 
 ```txt
-REACT_APP_API_URL=https://apin.huelmolabs.com.uy
+REACT_APP_API_URL=https://api.huelmoseguros.com.uy
 REACT_APP_RECAPTCHA_SITE_KEY=xxxx
 REACT_APP_EMAILJS_SERVICE_ID=xxxx
 REACT_APP_EMAILJS_TEMPLATE_ID=xxxx
@@ -79,7 +79,7 @@ site-settings.json
 ```txt
 NODE_ENV=production
 PORT=3000
-FRONTEND_URL=https://musing-hopper.161-0-125-69.plesk.page
+FRONTEND_URL=https://huelmoseguros.com.uy
 RECAPTCHA_SECRET_KEY=
 EMAILJS_PRIVATE_KEY=
 JWT_SECRET=un_secreto_largo
@@ -87,7 +87,7 @@ ADMIN_USER=admin
 ADMIN_PASSWORD=una_clave_segura
 UPLOADS_DIR=uploads
 DATA_DIR=data
-PUBLIC_API_URL=https://apin.huelmolabs.com.uy
+PUBLIC_API_URL=https://api.huelmoseguros.com.uy
 ```
 
 6. En Plesk Node.js configurar:

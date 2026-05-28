@@ -9,6 +9,10 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 const IS_PRODUCTION = NODE_ENV === 'production';
 
 function normalizePort(value) {
+  if (typeof value === 'string' && value.startsWith('\\\\.\\pipe\\')) {
+    // Compatibilidad con iisnode (Plesk Windows)
+    return value;
+  }
   const port = Number.parseInt(String(value ?? ''), 10);
   return Number.isNaN(port) || port < 0 || port >= 65536 ? null : port;
 }
@@ -21,8 +25,8 @@ if (process.env.ADMIN_BACKEND_PORT && normalizePort(process.env.ADMIN_BACKEND_PO
   console.warn(`Invalid ADMIN_BACKEND_PORT environment variable: '${process.env.ADMIN_BACKEND_PORT}'. Falling back to ${PORT}.`);
 }
 
-const ADMIN_USER = process.env.ADMIN_USER || '';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
+const ADMIN_USER = process.env.ADMIN_USER || 'admin';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD; // No poner default para forzar el uso de .env
 const ADMIN_SECRET = process.env.JWT_SECRET || process.env.ADMIN_SECRET || (
   IS_PRODUCTION ? crypto.randomBytes(32).toString('hex') : 'dev-secret'
 );
@@ -37,26 +41,25 @@ function resolveStoragePath(value, baseDir, fallback) {
 
 const DATA_DIR = resolveStoragePath(
   process.env.DATA_DIR || process.env.ADMIN_DATA_DIR,
-  __dirname,
-  path.join(__dirname, 'data')
+  process.cwd(),
+  path.resolve(__dirname, 'data')
 );
 const DB_PATH = process.env.DB_PATH || path.join(DATA_DIR, 'db.json');
 const SETTINGS_PATH = process.env.SETTINGS_PATH || path.join(DATA_DIR, 'site-settings.json');
 const UPLOADS_DIR = resolveStoragePath(process.env.UPLOADS_DIR, DATA_DIR, path.join(DATA_DIR, 'uploads'));
 const MAX_UPLOAD_BYTES = Number(process.env.MAX_UPLOAD_BYTES || 5 * 1024 * 1024);
 const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml']);
-const DEFAULT_ALLOWED_ORIGINS = [
-  'http://localhost:3000',
-  'https://musing-hopper.161-0-125-69.plesk.page',
-  'https://huelmoseguros.com.uy',
-  'https://www.huelmoseguros.com.uy',
-];
+
+// Permite configurar orígenes adicionales por variable de entorno separada por comas
 const configuredOrigins = [
   process.env.FRONTEND_URL,
   process.env.ADMIN_ALLOWED_ORIGIN,
   process.env.ADMIN_ALLOWED_ORIGINS,
-  DEFAULT_ALLOWED_ORIGINS.join(','),
+  'http://localhost:3000',
+  'https://huelmoseguros.com.uy',
+  'https://www.huelmoseguros.com.uy'
 ].filter(Boolean).join(',');
+
 const ALLOWED_ORIGINS = configuredOrigins
   .split(',')
   .map((origin) => origin.trim())
@@ -392,7 +395,8 @@ const server = http.createServer(async (request, response) => {
       const body = await readJson(request);
 
       if (!ADMIN_PASSWORD) {
-        sendJson(response, 503, { error: 'ADMIN_PASSWORD no esta configurado.' });
+        console.error('ERROR: ADMIN_PASSWORD no está definido en el archivo .env');
+        sendJson(response, 500, { error: 'Error de configuración en el servidor.' });
         return;
       }
 

@@ -19,8 +19,10 @@ logs/
 # admin runtime data
 /admin-backend/db.json
 /admin-backend/site-settings.json
-/admin-backend/uploads
-/admin-backend/data
+/admin-backend/uploads/*
+!/admin-backend/uploads/.gitkeep
+/admin-backend/data/*
+!/admin-backend/data/.gitkeep
 /admin-api/data
 
 # misc

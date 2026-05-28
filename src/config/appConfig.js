@@ -35,21 +35,19 @@ export const APP_CONFIG = {
 
   integrations: {
     emailjs: {
-      publicKey: process.env.REACT_APP_EMAILJS_PUBLIC_KEY || 'FWhla7meyPyV00HZZ',
-      serviceId: process.env.REACT_APP_EMAILJS_SERVICE_ID || 'service_qsf0m5b',
+      publicKey: process.env.REACT_APP_EMAILJS_PUBLIC_KEY || 'tuZCv6oNcfRyKhWtG',
+      serviceId: process.env.REACT_APP_EMAILJS_SERVICE_ID || 'service_0h8g5gq',
       contactTemplateId:
-        process.env.REACT_APP_EMAILJS_CONTACT_TEMPLATE_ID || 'template_qjor7vt',
+        process.env.REACT_APP_EMAILJS_CONTACT_TEMPLATE_ID || 'template_6wjszw2',
       quoteTemplateId:
-        process.env.REACT_APP_EMAILJS_QUOTE_TEMPLATE_ID || 'template_hw7rel8',
+        process.env.REACT_APP_EMAILJS_QUOTE_TEMPLATE_ID || 'template_6wjszw2',
       toEmail: process.env.REACT_APP_EMAILJS_TO_EMAIL || 'phuelmoseguros@gmail.com',
       fromEmail:
         process.env.REACT_APP_EMAILJS_FROM_EMAIL || 'phuelmoseguros@gmail.com',
       fromName: process.env.REACT_APP_EMAILJS_FROM_NAME || 'Huelmo Seguros Web',
     },
     recaptcha: {
-      siteKey:
-        process.env.REACT_APP_RECAPTCHA_SITE_KEY ||
-        '6LcYososAAAAANiGCDq90Exc3GTVzzoDgF2CnBSE',
+      siteKey: '6LdbIgAtAAAAAEYnfKCeqe19OWxeY6dYk-ECc7HV',
     },
   },
 
