@@ -1,14 +1,16 @@
 const developmentApiUrl =
   process.env.NODE_ENV === 'development' ? 'http://localhost:4000' : '';
-const productionApiUrl = 'https://api.huelmoseguros.com.uy';
+
+const productionApiUrl = 'https://apin.huelmolabs.com.uy';
+// URL de respaldo si no hay variables de entorno (ajustada a tu dominio temporal de API)
+const productionApiUrl = 'https://api.musing-hopper.161-0-125-69.plesk.page';
 
 export const APP_CONFIG = {
   endpoints: {
     adminApiUrl:
-      process.env.REACT_APP_API_URL ||
-      process.env.REACT_APP_ADMIN_API_URL ||
-      developmentApiUrl ||
-      productionApiUrl,
+      process.env.REACT_APP_API_URL || 
+      process.env.REACT_APP_ADMIN_API_URL || 
+      (process.env.NODE_ENV === 'development' ? developmentApiUrl : productionApiUrl),
   },
 
   contact: {

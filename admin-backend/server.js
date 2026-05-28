@@ -37,26 +37,24 @@ function resolveStoragePath(value, baseDir, fallback) {
 
 const DATA_DIR = resolveStoragePath(
   process.env.DATA_DIR || process.env.ADMIN_DATA_DIR,
-  __dirname,
-  path.join(__dirname, 'data')
+  process.cwd(),
+  path.join(process.cwd(), 'data')
 );
 const DB_PATH = process.env.DB_PATH || path.join(DATA_DIR, 'db.json');
 const SETTINGS_PATH = process.env.SETTINGS_PATH || path.join(DATA_DIR, 'site-settings.json');
 const UPLOADS_DIR = resolveStoragePath(process.env.UPLOADS_DIR, DATA_DIR, path.join(DATA_DIR, 'uploads'));
 const MAX_UPLOAD_BYTES = Number(process.env.MAX_UPLOAD_BYTES || 5 * 1024 * 1024);
 const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml']);
-const DEFAULT_ALLOWED_ORIGINS = [
-  'http://localhost:3000',
-  'https://musing-hopper.161-0-125-69.plesk.page',
-  'https://huelmoseguros.com.uy',
-  'https://www.huelmoseguros.com.uy',
-];
+
+// Permite configurar orígenes adicionales por variable de entorno separada por comas
 const configuredOrigins = [
   process.env.FRONTEND_URL,
   process.env.ADMIN_ALLOWED_ORIGIN,
   process.env.ADMIN_ALLOWED_ORIGINS,
-  DEFAULT_ALLOWED_ORIGINS.join(','),
+  'http://localhost:3000',
+  'https://interesting-allen.161-0-125-69.plesk.page' // Agregamos tu dominio de prueba actual
 ].filter(Boolean).join(',');
+
 const ALLOWED_ORIGINS = configuredOrigins
   .split(',')
   .map((origin) => origin.trim())
