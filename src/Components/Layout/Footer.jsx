@@ -3,6 +3,8 @@ import { FaInstagram, FaFacebookF, FaLinkedinIn } from "react-icons/fa";
 import { useSiteContent } from "../../Hooks/useSiteContent";
 import "../styles/Footer.css";
 
+const huelmoLabsLogo = process.env.PUBLIC_URL + "/Images/huelmo-labs-logo.png";
+
 export default function Footer() {
     const { content } = useSiteContent();
     const { footer } = content;
@@ -32,18 +34,22 @@ export default function Footer() {
                     <p>{footer.about}</p>
                 </div>
 
-                <div className="footer-section">
-                    <h3>Enlaces Rápidos</h3>
-                    <ul>
-                        <li><a href="#home">Inicio</a></li>
-                        <li><a href="#about">Nosotros</a></li>
-                        <li><a href="#services">Servicios</a></li>
-                        <li><a href="#brokers">Corredores</a></li>
-                    </ul>
+                <div className="footer-section footer-made-by">
+                    <h3>Hecho por</h3>
+                    <a
+                        className="huelmo-labs-brand"
+                        href="https://huelmolabs.com.uy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Hecho por Huelmo Labs"
+                    >
+                        <img src={huelmoLabsLogo} alt="Huelmo Labs" />
+                        <span>Huelmo Labs</span>
+                    </a>
                 </div>
 
-                <div className="footer-section">
-                
+                <div className="footer-section footer-social-section">
+                    <h3>Seguinos</h3>
                     <div className="social-links">
                         <a
                             href={footer.instagram}

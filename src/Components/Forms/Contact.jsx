@@ -15,6 +15,7 @@ function Contact({ onClose }) {
     lastName: "",
     phone: "",
     email: "",
+    birthDate: "",
     queryType: "",
     message: "",
   });
@@ -53,12 +54,17 @@ function Contact({ onClose }) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
+  const validatePhone = (phone) => {
+    return String(phone || '').replace(/\D/g, '').length >= 8;
+  };
+
   const validateForm = () => {
     let newErrors = {};
 
     if (!formData.name.trim()) newErrors.name = APP_CONFIG.errors.requiredName;
     if (!formData.lastName.trim()) newErrors.lastName = APP_CONFIG.errors.requiredLastName;
-    if (!formData.phone.trim()) newErrors.phone = APP_CONFIG.errors.requiredPhone;
+    if (!validatePhone(formData.phone)) newErrors.phone = 'Ingresá un teléfono válido';
+    if (!formData.birthDate) newErrors.birthDate = 'Fecha de nacimiento requerida';
 
     if (!formData.email.trim()) {
       newErrors.email = APP_CONFIG.errors.requiredEmail;
@@ -95,8 +101,20 @@ function Contact({ onClose }) {
           from_name: `${formData.name} ${formData.lastName}`,
           from_email: formData.email,
           phone: formData.phone,
+          birth_date: formData.birthDate,
           query_type: formData.queryType,
-          message: formData.message,
+          message: [
+            'Nueva consulta recibida desde la web.',
+            '',
+            `Nombre: ${formData.name} ${formData.lastName}`,
+            `Email: ${formData.email}`,
+            `Teléfono: ${formData.phone}`,
+            `Fecha de nacimiento: ${formData.birthDate}`,
+            `Tipo de consulta: ${formData.queryType}`,
+            '',
+            'Mensaje:',
+            formData.message,
+          ].join('\n'),
           "g-recaptcha-response": captchaValue,
         }
       );
@@ -113,13 +131,16 @@ function Contact({ onClose }) {
         lastName: "",
         phone: "",
         email: "",
+        birthDate: "",
         queryType: "",
         message: "",
       });
 
       setCaptchaValue(null);
     } catch (error) {
-      setErrorMsg(APP_CONFIG.errors.contactSendFailed);
+      const detail = error?.text || error?.message || '';
+      console.error("Error al enviar:", error);
+      setErrorMsg(detail ? `${APP_CONFIG.errors.contactSendFailed} ${detail}` : APP_CONFIG.errors.contactSendFailed);
     }
 
     setLoading(false);
@@ -144,7 +165,7 @@ function Contact({ onClose }) {
 
         {submitted && (
           <div className="success-message fade-in">
-            Mensaje enviado correctamente.
+            Mensaje enviado correctamente. Te contactaremos a la brevedad.
           </div>
         )}
 
@@ -207,6 +228,20 @@ function Contact({ onClose }) {
                   aria-invalid={Boolean(errors.email)}
                 />
                 {errors.email && <small className="field-error">{errors.email}</small>}
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-field">
+                <input
+                  type="date"
+                  name="birthDate"
+                  value={formData.birthDate}
+                  onChange={handleChange}
+                  aria-label="Fecha de nacimiento"
+                  aria-invalid={Boolean(errors.birthDate)}
+                />
+                {errors.birthDate && <small className="field-error">{errors.birthDate}</small>}
               </div>
             </div>
           </fieldset>

@@ -1,11 +1,17 @@
 import React, { useCallback, useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { useSiteContent } from '../../Hooks/useSiteContent';
+import SmartImage from '../Common/SmartImage';
 
 /* ===== CONFIG ===== */
 const AUTO_PLAY_INTERVAL = 4000;
 
 /* ===== ESTILOS ===== */
+
+const shimmer = keyframes`
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+`;
 
 const SectionWrapper = styled.section`
   display: flex;
@@ -26,6 +32,19 @@ const MainCard = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  background: #edf2ef;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+    transform: translateX(-100%);
+    animation: ${shimmer} 1.25s ease-in-out infinite;
+    opacity: ${props => (props.$loaded ? 0 : 1)};
+    transition: opacity 0.25s ease;
+  }
 `;
 
 const BackgroundLayer = styled.div`
@@ -39,6 +58,14 @@ const BackgroundLayer = styled.div`
   transform: ${props => (props.$active ? 'scale(1)' : 'scale(1.05)')};
 
   transition: opacity 0.8s ease, transform 1.2s ease;
+`;
+
+const BackgroundPreloader = styled.img`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
 `;
 
 const BackgroundOverlay = styled.div`
@@ -75,10 +102,9 @@ const GlassContent = styled.div`
     overflow: hidden;
     background: white;
 
-    img {
+    span {
       width: 100%;
       height: 100%;
-      object-fit: cover;
     }
   }
 
@@ -137,10 +163,9 @@ const DockItem = styled.button`
 
   transition: all 0.3s ease;
 
-  img {
+  span {
     width: 100%;
     height: 100%;
-    object-fit: cover;
   }
 `;
 
@@ -158,12 +183,15 @@ function ServicesSection({ openQuote }) {
   const colors = content.styles?.services || {};
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hoverIndex, setHoverIndex] = useState(null);
+  const [loadedBackgrounds, setLoadedBackgrounds] = useState({});
 
   const intervalRef = useRef(null);
 
   const activeIndex = hoverIndex !== null ? hoverIndex : currentIndex;
   const activeService = services[activeIndex];
   const activeColors = activeService?.colors || {};
+  const activeBackgroundUrl = getAssetUrl(activeService?.imagen);
+  const activeBackgroundLoaded = Boolean(loadedBackgrounds[activeBackgroundUrl]);
 
   const nextService = useCallback(() => {
     setCurrentIndex(prev => (prev + 1) % services.length);
@@ -186,23 +214,34 @@ function ServicesSection({ openQuote }) {
   return (
     <SectionWrapper $colors={colors}>
       <MainCard
+        $loaded={activeBackgroundLoaded}
         onMouseEnter={stopAutoPlay}
         onMouseLeave={startAutoPlay}
       >
 
         {services.map((s, i) => (
-          <BackgroundLayer
-            key={i}
-            $bg={getAssetUrl(s.imagen)}
-            $active={i === activeIndex}
-          />
+          <React.Fragment key={i}>
+            <BackgroundPreloader
+              src={getAssetUrl(s.imagen)}
+              alt=""
+              aria-hidden="true"
+              onLoad={() => {
+                const url = getAssetUrl(s.imagen);
+                setLoadedBackgrounds(prev => ({ ...prev, [url]: true }));
+              }}
+            />
+            <BackgroundLayer
+              $bg={getAssetUrl(s.imagen)}
+              $active={i === activeIndex && Boolean(loadedBackgrounds[getAssetUrl(s.imagen)])}
+            />
+          </React.Fragment>
         ))}
 
         <BackgroundOverlay />
 
         <GlassContent $colors={colors} $itemColors={activeColors}>
           <div className="icon-container">
-            <img src={getAssetUrl(activeService.icon)} alt="" />
+            <SmartImage src={getAssetUrl(activeService.icon)} alt="" />
           </div>
           <h2>{activeService.title}</h2>
           <p>{activeService.description}</p>
@@ -225,7 +264,7 @@ function ServicesSection({ openQuote }) {
             onMouseEnter={() => setHoverIndex(i)}
             onMouseLeave={() => setHoverIndex(null)}
           >
-            <img src={getAssetUrl(s.icon)} alt={s.title} />
+            <SmartImage src={getAssetUrl(s.icon)} alt={s.title} />
           </DockItem>
         ))}
       </DarkDock>

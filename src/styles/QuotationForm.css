@@ -209,12 +209,13 @@ input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="
 /* MENSAJE DE ÉXITO */
 .success-message {
   background: color-mix(in srgb, var(--color-accent) 16%, white);
-  color: var(--color-dark);
+  color: #047857;
   padding: 15px;
   border-radius: 12px;
   text-align: center;
   margin-bottom: 20px;
-  font-weight: 500;
+  font-weight: 800;
+  border: 1px solid #a7f3d0;
 }
 
 /* MENSAJE DE ERROR */

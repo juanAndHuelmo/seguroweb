@@ -1,0 +1,147 @@
+{
+  "pages": [
+    {
+      "id": "home",
+      "title": "Inicio",
+      "slug": "/",
+      "description": "Página principal del sitio",
+      "sections": [
+        "hero-1",
+        "services-1",
+        "why-us-1"
+      ]
+    },
+    {
+      "id": "about",
+      "title": "Nosotros",
+      "slug": "/nosotros",
+      "description": "Conoce nuestra historia y equipo",
+      "sections": [
+        "hero-about",
+        "about-text"
+      ]
+    },
+    {
+      "id": "contact",
+      "title": "Contacto",
+      "slug": "/contacto",
+      "description": "Canales de comunicación directa",
+      "sections": [
+        "contact-hero",
+        "contact-form"
+      ]
+    }
+  ],
+  "sections": {
+    "hero-1": {
+      "type": "Hero",
+      "content": {
+        "title": "Protección que se adapta a tu vida",
+        "subtitle": "Seguros diseñados para lo que más valoras.",
+        "buttonText": "Cotizar ahora"
+      },
+      "styles": {
+        "backgroundColor": "#064e3b",
+        "textColor": "#ffffff",
+        "paddingTop": "0px",
+        "paddingBottom": "120px",
+        "textAlign": "center",
+        "fontSizeTitle": "4rem"
+      },
+      "is_visible": true
+    },
+    "services-1": {
+      "type": "Services",
+      "content": {
+        "title": "Servicios Destacados",
+        "items": "Automóviles, Hogar, Vida, Comercio"
+      },
+      "styles": {
+        "backgroundColor": "#f5f5f7",
+        "paddingTop": "60px",
+        "paddingBottom": "60px"
+      },
+      "is_visible": true
+    },
+    "why-us-1": {
+      "type": "Features",
+      "content": {
+        "title": "¿Por qué elegir Huelmo?",
+        "text": "Asesoría experta, respuesta inmediata y el respaldo de las mejores compañías del país."
+      },
+      "styles": {
+        "backgroundColor": "#ffffff",
+        "textColor": "#1f2937",
+        "paddingTop": "80px",
+        "paddingBottom": "80px",
+        "textAlign": "center"
+      },
+      "is_visible": true
+    },
+    "hero-about": {
+      "type": "Hero",
+      "content": {
+        "title": "Nuestra Trayectoria",
+        "subtitle": "Más de una década brindando seguridad.",
+        "buttonText": "Ver Historia"
+      },
+      "styles": {
+        "backgroundColor": "#1d4ed8",
+        "textColor": "#ffffff",
+        "paddingTop": "100px",
+        "paddingBottom": "100px",
+        "textAlign": "center",
+        "fontSizeTitle": "3.5rem"
+      },
+      "is_visible": true
+    },
+    "about-text": {
+      "type": "Text",
+      "content": {
+        "title": "Líderes en Confianza",
+        "text": "En Huelmo Seguros, entendemos que cada cliente es único. Por eso diseñamos soluciones a medida."
+      },
+      "styles": {
+        "backgroundColor": "#ffffff",
+        "textColor": "#374151",
+        "paddingTop": "60px",
+        "paddingBottom": "60px",
+        "textAlign": "left"
+      },
+      "is_visible": true
+    },
+    "contact-hero": {
+      "type": "Hero",
+      "content": {
+        "title": "Contáctanos",
+        "subtitle": "Estamos aquí para asesorarte.",
+        "buttonText": ""
+      },
+      "styles": {
+        "backgroundColor": "#064e3b",
+        "textColor": "#ffffff",
+        "paddingTop": "80px",
+        "paddingBottom": "80px",
+        "textAlign": "center",
+        "fontSizeTitle": "3rem"
+      },
+      "is_visible": true
+    },
+    "contact-form": {
+      "type": "Contact",
+      "content": {
+        "title": "Información de Contacto",
+        "email": "phuelmoseguros@gmail.com",
+        "phone": "+598 92 290 092"
+      },
+      "styles": {
+        "backgroundColor": "#f9fafb",
+        "textColor": "#1f2937",
+        "paddingTop": "60px",
+        "paddingBottom": "60px",
+        "textAlign": "left"
+      },
+      "is_visible": true
+    }
+  }
+}

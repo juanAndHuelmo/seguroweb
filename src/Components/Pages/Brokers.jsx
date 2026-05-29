@@ -2,6 +2,7 @@ import React from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useSiteContent } from '../../Hooks/useSiteContent';
 import { APP_CONFIG } from '../../config/appConfig';
+import SmartImage from '../Common/SmartImage';
 
 /* ===== ANIMACIONES ===== */
 const scroll = keyframes`
@@ -108,10 +109,9 @@ const LogoCard = styled.div`
   }
 `;
 
-const Image = styled.img`
+const Image = styled(SmartImage)`
   max-width: 85%;
   height: 58px;
-  object-fit: contain;
 
   ${LogoCard}:hover & {
     /* Al pasar el mouse, recuperan color original para destacar */
@@ -189,7 +189,7 @@ function Brokers() {
 
             return (
               <LogoCard key={`${broker.name}-${index}`} $colors={colors} $itemColors={broker.colors || {}}>
-                <Image src={getAssetUrl(broker.image)} alt={broker.name} />
+                <Image src={getAssetUrl(broker.image)} alt={broker.name} fit="contain" />
                 {claimsInfo.claimsPhone && (
                   <ClaimsInfo $colors={colors} $itemColors={broker.colors || {}}>
                     <span>{claimsInfo.claimsDetail}</span>

@@ -4,6 +4,7 @@ import styled, { keyframes } from 'styled-components';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { APP_CONFIG } from '../../config/appConfig';
 import { useSiteContent } from '../../Hooks/useSiteContent';
+import SmartImage from '../Common/SmartImage';
 
 emailjs.init(APP_CONFIG.integrations.emailjs.publicKey);
 
@@ -34,6 +35,31 @@ const Container = styled.div`
   max-height:92vh;
   overflow:hidden;
   animation:${fadeIn} .3s ease;
+  position:relative;
+`;
+
+const CloseButton = styled.button`
+  position:absolute;
+  top:10px;
+  right:10px;
+  width:40px;
+  height:40px;
+  border:none;
+  border-radius:999px;
+  background:#ffffff;
+  color:#1f2937;
+  font-size:28px;
+  line-height:1;
+  cursor:pointer;
+  z-index:2;
+  box-shadow:0 4px 14px rgba(15,23,42,0.16);
+
+  @media(max-width:600px){
+    top:8px;
+    right:8px;
+    width:42px;
+    height:42px;
+  }
 `;
 
 const Content = styled.div`
@@ -89,10 +115,9 @@ const Tab = styled.button`
     transform:translateY(-2px);
   }
 
-  img{
+  span{
     width:60px;
     height:60px;
-    object-fit:cover;
     border-radius:10px;
     opacity:${p=>p.$active?1:0.6};
   }
@@ -162,11 +187,161 @@ const FormMessage = styled.p`
   text-align: center;
 `;
 
+const SuccessPanel = styled.div`
+  margin: 16px 0 0;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #ecfdf5;
+  color: #047857;
+  font-weight: 800;
+  text-align: center;
+  border: 1px solid #a7f3d0;
+`;
+
 const PersonalData = styled.div`
   display:grid;
   gap:10px;
   margin-top:20px;
 `;
+
+const URUGUAY_LOCALITIES = [
+  'Montevideo',
+  'Ciudad de la Costa',
+  'Las Piedras',
+  'Pando',
+  'Canelones',
+  'Santa Lucía',
+  'Progreso',
+  'Maldonado',
+  'Punta del Este',
+  'San Carlos',
+  'Piriápolis',
+  'Salto',
+  'Paysandú',
+  'Rivera',
+  'Tacuarembó',
+  'Melo',
+  'Artigas',
+  'Bella Unión',
+  'Mercedes',
+  'Dolores',
+  'Fray Bentos',
+  'Young',
+  'Colonia del Sacramento',
+  'Carmelo',
+  'Nueva Helvecia',
+  'Rosario',
+  'San José de Mayo',
+  'Libertad',
+  'Florida',
+  'Durazno',
+  'Trinidad',
+  'Minas',
+  'Rocha',
+  'Chuy',
+  'Treinta y Tres',
+];
+
+const INSURANCE_LABELS = {
+  vehicles: 'Vehículo',
+  home: 'Hogar',
+  commerce: 'Comercio',
+  life: 'Vida',
+  travel: 'Viaje',
+};
+
+const FIELD_LABELS = {
+  fullName: 'Nombre completo',
+  email: 'Email',
+  phone: 'Teléfono',
+  ci: 'Cédula',
+  birthDate: 'Fecha de nacimiento',
+  brand: 'Marca',
+  model: 'Modelo',
+  year: 'Año',
+  zone: 'Zona de circulación',
+  coverage: 'Cobertura',
+  location: 'Localidad',
+  type: 'Tipo/Rubro',
+  use: 'Uso',
+  construction: 'Construcción',
+  area: 'Área',
+  security: 'Seguridad',
+  employees: 'Empleados',
+  smoker: 'Fumador',
+  health: 'Salud / antecedentes',
+  income: 'Ingreso mensual',
+  destinations: 'Destino(s)',
+  startDate: 'Fecha de salida',
+  endDate: 'Fecha de regreso',
+  travelers: 'Cantidad de viajeros',
+};
+
+const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const digitsOnly = (value) => String(value || '').replace(/\D/g, '');
+
+const formatDate = (value) => {
+  if (!value) return '';
+  const [year, month, day] = value.split('-');
+  return year && month && day ? `${day}/${month}/${year}` : value;
+};
+
+const formatValue = (key, value) => {
+  if (!value) return '';
+  if (key === 'birthDate' || key === 'startDate' || key === 'endDate') return formatDate(value);
+  return value;
+};
+
+const buildQuoteMessage = (data) => {
+  const typeLabel = INSURANCE_LABELS[data.insuranceType] || data.insuranceType;
+  const orderedKeys = [
+    'fullName',
+    'email',
+    'phone',
+    'ci',
+    'birthDate',
+    'brand',
+    'model',
+    'year',
+    'zone',
+    'coverage',
+    'location',
+    'type',
+    'use',
+    'construction',
+    'area',
+    'security',
+    'employees',
+    'smoker',
+    'health',
+    'income',
+    'destinations',
+    'startDate',
+    'endDate',
+    'travelers',
+  ];
+
+  const detailLines = orderedKeys
+    .filter((key) => data[key])
+    .map((key) => `${FIELD_LABELS[key] || key}: ${formatValue(key, data[key])}`);
+
+  return [
+    `Nueva solicitud de cotización - ${typeLabel}`,
+    '',
+    'Datos del cliente:',
+    `Nombre: ${data.fullName}`,
+    `Email: ${data.email}`,
+    `Teléfono: ${data.phone}`,
+    data.ci ? `Cédula: ${data.ci}` : '',
+    data.birthDate ? `Fecha de nacimiento: ${formatDate(data.birthDate)}` : '',
+    '',
+    'Detalle de la solicitud:',
+    `Seguro solicitado: ${typeLabel}`,
+    ...detailLines.filter((line) => !line.startsWith('Nombre completo:') && !line.startsWith('Email:') && !line.startsWith('Teléfono:') && !line.startsWith('Cédula:') && !line.startsWith('Fecha de nacimiento:')),
+    '',
+    'Por favor, contactar al cliente a la brevedad para continuar con la cotización.',
+  ].filter(Boolean).join('\n');
+};
 
 /* ===== COMPONENT ===== */
 export default function QuotationForm({onClose}){
@@ -215,7 +390,7 @@ export default function QuotationForm({onClose}){
     },
 
     common:{
-      fullName:'', email:'', phone:'', ci:''
+      fullName:'', email:'', phone:'', ci:'', birthDate:''
     }
   });
   const [captchaValue, setCaptchaValue] = useState(null);
@@ -247,22 +422,56 @@ export default function QuotationForm({onClose}){
     const d=form[t];
     const c=form.common;
 
-    if(!c.fullName || !c.email || !c.phone) return false;
+    if(!c.fullName || !c.email || !c.phone || !c.birthDate) return false;
+    if(!validateEmail(c.email)) return false;
+    if(digitsOnly(c.phone).length < 8) return false;
+    if(c.ci && digitsOnly(c.ci).length < 7) return false;
 
-    if(t==='vehicles') return d.brand && d.year && d.coverage;
-    if(t==='home') return d.type && d.area && d.coverage;
-    if(t==='commerce') return d.type && d.area;
+    if(t==='vehicles') return d.brand && d.year && d.coverage && d.location;
+    if(t==='home') return d.type && d.area && d.coverage && d.location;
+    if(t==='commerce') return d.type && d.area && d.location;
     if(t==='life') return d.age && d.coverage;
-    if(t==='travel') return d.destinations && d.startDate;
+    if(t==='travel') return d.destinations && d.startDate && d.endDate && d.travelers;
 
     return true;
+  };
+
+  const validateBeforeSubmit=()=>{
+    const t=form.insuranceType;
+    const d=form[t];
+    const c=form.common;
+
+    if(!c.fullName.trim()) return 'Ingresá el nombre completo.';
+    if(!validateEmail(c.email)) return 'Ingresá un email válido.';
+    if(digitsOnly(c.phone).length < 8) return 'Ingresá un teléfono válido.';
+    if(c.ci && digitsOnly(c.ci).length < 7) return 'Ingresá una cédula válida.';
+    if(!c.birthDate) return 'Seleccioná la fecha de nacimiento.';
+
+    if(t==='vehicles' && (!d.brand || !d.year || !d.coverage || !d.location)) {
+      return 'Completá marca, año, cobertura y localidad del vehículo.';
+    }
+    if(t==='home' && (!d.type || !d.area || !d.coverage || !d.location)) {
+      return 'Completá tipo, área, cobertura y localidad del hogar.';
+    }
+    if(t==='commerce' && (!d.type || !d.area || !d.location)) {
+      return 'Completá rubro, área y localidad del comercio.';
+    }
+    if(t==='life' && (!d.age || !d.coverage)) {
+      return 'Completá edad y cobertura solicitada.';
+    }
+    if(t==='travel' && (!d.destinations || !d.startDate || !d.endDate || !d.travelers)) {
+      return 'Completá destino, fechas y cantidad de viajeros.';
+    }
+
+    return '';
   };
 
   const handleSubmit=async()=>{
     if(loading) return;
 
-    if(!isValid()){
-      alert(APP_CONFIG.errors.quoteIncomplete);
+    const validationError = validateBeforeSubmit();
+    if(validationError){
+      setSubmitMessage(validationError);
       return;
     }
 
@@ -274,7 +483,7 @@ export default function QuotationForm({onClose}){
     const data={
       ...form.common,
       ...form[form.insuranceType],
-      type:form.insuranceType
+      insuranceType:form.insuranceType
     };
 
     try{
@@ -288,15 +497,20 @@ export default function QuotationForm({onClose}){
         sender_name: APP_CONFIG.integrations.emailjs.fromName,
         from_name:data.fullName,
         from_email:data.email,
+        phone:data.phone,
+        birth_date:formatDate(data.birthDate),
+        insurance_type:INSURANCE_LABELS[data.insuranceType] || data.insuranceType,
         'g-recaptcha-response': captchaValue,
-        message:JSON.stringify(data,null,2)
+        message:buildQuoteMessage(data)
       });
 
       setSubmitMessage(APP_CONFIG.errors.quoteSuccess);
       onClose && onClose();
 
-    }catch{
-      setSubmitMessage(APP_CONFIG.errors.quoteSendFailed);
+    }catch(error){
+      const detail = error?.text || error?.message || '';
+      console.error('EmailJS quote send failed:', error);
+      setSubmitMessage(detail ? `${APP_CONFIG.errors.quoteSendFailed} ${detail}` : APP_CONFIG.errors.quoteSendFailed);
     }finally{
       setLoading(false);
     }
@@ -308,6 +522,9 @@ export default function QuotationForm({onClose}){
   return(
     <Overlay onClick={onClose}>
       <Container $colors={colors} onClick={e=>e.stopPropagation()}>
+        <CloseButton type="button" onClick={onClose} aria-label="Cerrar formulario">
+          &times;
+        </CloseButton>
 
         <Content>
 
@@ -319,7 +536,7 @@ export default function QuotationForm({onClose}){
                 $active={form.insuranceType===t.value}
                 onClick={()=>changeType(t.value)}
               >
-                <img src={t.img} alt={t.label}/>
+                <SmartImage src={t.img} alt={t.label}/>
                 <span>{t.label}</span>
               </Tab>
             ))}
@@ -347,7 +564,10 @@ export default function QuotationForm({onClose}){
                 <option>Todo Riesgo</option>
               </Select>
 
-              <Input name="location" value={d.location} placeholder="Localidad" onChange={handleChange}/>
+              <Select name="location" value={d.location} onChange={handleChange}>
+                <option value="">Localidad</option>
+                {URUGUAY_LOCALITIES.map(locality => <option key={locality}>{locality}</option>)}
+              </Select>
             </Grid>
           )}
 
@@ -376,7 +596,10 @@ export default function QuotationForm({onClose}){
                 <option>Todo Riesgo Hogar</option>
               </Select>
 
-              <Input name="location" value={d.location} placeholder="Localidad" onChange={handleChange}/>
+              <Select name="location" value={d.location} onChange={handleChange}>
+                <option value="">Localidad</option>
+                {URUGUAY_LOCALITIES.map(locality => <option key={locality}>{locality}</option>)}
+              </Select>
             </Grid>
           )}
 
@@ -395,7 +618,10 @@ export default function QuotationForm({onClose}){
                 <option>Completa</option>
               </Select>
 
-              <Input name="location" value={d.location} placeholder="Localidad" onChange={handleChange}/>
+              <Select name="location" value={d.location} onChange={handleChange}>
+                <option value="">Localidad</option>
+                {URUGUAY_LOCALITIES.map(locality => <option key={locality}>{locality}</option>)}
+              </Select>
             </Grid>
           )}
 
@@ -436,9 +662,10 @@ export default function QuotationForm({onClose}){
           <PersonalData>
             <Input name="fullName" value={c.fullName} placeholder="Nombre completo" onChange={handleChange}/>
             <Grid>
-              <Input name="email" value={c.email} placeholder="Email" onChange={handleChange}/>
-              <Input name="phone" value={c.phone} placeholder="Celular" onChange={handleChange}/>
+              <Input type="email" name="email" value={c.email} placeholder="Email" onChange={handleChange}/>
+              <Input type="tel" name="phone" value={c.phone} placeholder="Celular" onChange={handleChange}/>
               <Input name="ci" value={c.ci} placeholder="Cédula" onChange={handleChange}/>
+              <Input type="date" name="birthDate" value={c.birthDate} onChange={handleChange} aria-label="Fecha de nacimiento"/>
             </Grid>
           </PersonalData>
 
@@ -450,9 +677,13 @@ export default function QuotationForm({onClose}){
           </CaptchaWrap>
 
           {submitMessage && (
-            <FormMessage $error={submitMessage.includes('Error') || submitMessage.includes('CAPTCHA')}>
-              {submitMessage}
-            </FormMessage>
+            submitMessage === APP_CONFIG.errors.quoteSuccess ? (
+              <SuccessPanel>{submitMessage} Te contactaremos a la brevedad.</SuccessPanel>
+            ) : (
+              <FormMessage $error={submitMessage.includes('Error') || submitMessage.includes('CAPTCHA')}>
+                {submitMessage}
+              </FormMessage>
+            )
           )}
 
         </Content>

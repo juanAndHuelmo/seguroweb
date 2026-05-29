@@ -1,0 +1,38 @@
+Paquete local de deploy - Huelmo Seguros
+
+Archivos incluidos:
+
+- frontend-build.zip
+  Subir al document root del sitio web.
+  Al extraerlo, index.html debe quedar directo en la raiz del sitio.
+
+- api-publish.zip
+  Subir al root del subdominio/API Node.js.
+  Al extraerlo, server.js y package.json deben quedar directos en la raiz de la app.
+
+Variables importantes:
+
+- Frontend compilado con API:
+  https://api.huelmoseguros.com.uy
+
+- API en Plesk debe tener, como minimo:
+  NODE_ENV=production
+  PORT=3000
+  FRONTEND_URL=https://huelmoseguros.com.uy
+  PUBLIC_API_URL=https://api.huelmoseguros.com.uy
+  ADMIN_USER=admin
+  ADMIN_PASSWORD=una_clave_segura
+  JWT_SECRET=un_secreto_largo_random
+  ADMIN_SECRET=otro_secreto_largo_random
+  ADMIN_ALLOWED_ORIGIN=https://huelmoseguros.com.uy,https://www.huelmoseguros.com.uy
+  DATA_DIR=data
+  UPLOADS_DIR=uploads
+
+- Si la API final es otra, cambiar .env.production y volver a ejecutar:
+  bash deploy/scripts/zip-front.sh
+
+Recordatorio:
+
+- No subir .env del proyecto local.
+- Configurar las variables reales en Plesk o en el .env de produccion del hosting.
+- Reiniciar la app Node.js despues de cambiar variables.

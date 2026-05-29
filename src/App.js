@@ -13,6 +13,7 @@ const AdminWorkspace = lazy(() => import('./Components/AdminPanel/AdminWorkspace
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
+  const [showLoader, setShowLoader] = useState(true);
   const { theme } = useTheme();
   const isAdminPage =
     window.location.pathname.endsWith('/admin') || window.location.hash === '#/admin';
@@ -25,6 +26,19 @@ function App() {
     document.documentElement.style.setProperty('--color-dark', theme.dark);
     document.documentElement.style.setProperty('--color-light', theme.light);
   }, [theme]);
+
+  useEffect(() => {
+    if (isAdminPage) {
+      setShowLoader(false);
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => {
+      setShowLoader(false);
+    }, 1450);
+
+    return () => window.clearTimeout(timer);
+  }, [isAdminPage]);
 
   const renderContent = () => {
     switch (currentPage) {
@@ -49,6 +63,16 @@ function App() {
         </Suspense>
       ) : (
         <>
+          {showLoader && (
+            <div className="initial-loader" role="status" aria-label="Cargando Huelmo Seguros">
+              <div className="initial-loader__mark">
+                <img src={`${process.env.PUBLIC_URL}/Images/logo.png`} alt="Huelmo Seguros" />
+              </div>
+              <div className="initial-loader__bar" aria-hidden="true">
+                <span />
+              </div>
+            </div>
+          )}
           <NavBar currentPage={currentPage} setCurrentPage={setCurrentPage} />
           <main className="main-content">
             {renderContent()}

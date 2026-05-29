@@ -3,7 +3,37 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-require('dotenv').config({ quiet: true });
+function loadEnvFile(filePath, { override = false } = {}) {
+  if (!fs.existsSync(filePath)) return;
+
+  const lines = fs.readFileSync(filePath, 'utf8').split(/\r?\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+
+    const equalsIndex = trimmed.indexOf('=');
+    if (equalsIndex === -1) continue;
+
+    const key = trimmed.slice(0, equalsIndex).trim();
+    let value = trimmed.slice(equalsIndex + 1).trim();
+
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+
+    if (key === 'PORT' && process.env.PORT) continue;
+
+    if (override || process.env[key] === undefined) {
+      process.env[key] = value;
+    }
+  }
+}
+
+loadEnvFile(path.join(__dirname, '.env'));
+loadEnvFile(path.join(__dirname, 'production.env'), { override: true });
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const IS_PRODUCTION = NODE_ENV === 'production';
